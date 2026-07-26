@@ -1,0 +1,124 @@
+name: ai-honeypot-collection
+
+x-service-defaults: &service-defaults
+  init: true
+  user: "10001:10001"
+  read_only: true
+  restart: unless-stopped
+  networks:
+    - honeypot
+  volumes:
+    - logs:/data
+  tmpfs:
+    - /tmp:size=16m,mode=1777
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+  pids_limit: 100
+  mem_limit: 256m
+  stop_grace_period: 15s
+  healthcheck: &http-healthcheck
+    test:
+      - CMD
+      - python
+      - -c
+      - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=2).read()"
+    interval: 30s
+    timeout: 3s
+    retries: 3
+    start_period: 10s
+
+services:
+  web-scanner-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/web-scanner-trap/Dockerfile
+    image: ai-honeypot/web-scanner-trap:local
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      HONEYPOT_LOG_PATH: /data/web-scanner-trap.jsonl
+
+  credential-honey:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/credential-honey/Dockerfile
+    image: ai-honeypot/credential-honey:local
+    ports:
+      - "127.0.0.1:8081:8080"
+    environment:
+      HONEYPOT_LOG_PATH: /data/credential-honey.jsonl
+
+  c2-decoy:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/c2-decoy/Dockerfile
+    image: ai-honeypot/c2-decoy:local
+    ports:
+      - "127.0.0.1:8082:8080"
+    environment:
+      HONEYPOT_LOG_PATH: /data/c2-decoy.jsonl
+
+  graphql-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/graphql-trap/Dockerfile
+    image: ai-honeypot/graphql-trap:local
+    ports:
+      - "127.0.0.1:8083:8080"
+    environment:
+      HONEYPOT_LOG_PATH: /data/graphql-trap.jsonl
+
+  cloud-metadata-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/cloud-metadata-trap/Dockerfile
+    image: ai-honeypot/cloud-metadata-trap:local
+    ports:
+      - "127.0.0.1:8084:8080"
+    environment:
+      HONEYPOT_LOG_PATH: /data/cloud-metadata-trap.jsonl
+
+  agentic-lure:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/agentic-lure/Dockerfile
+    image: ai-honeypot/agentic-lure:local
+    ports:
+      - "127.0.0.1:8085:8080"
+    environment:
+      HONEYPOT_LOG_PATH: /data/agentic-lure.jsonl
+
+  ai-fingerprint:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/ai-fingerprint/Dockerfile
+    image: ai-honeypot/ai-fingerprint:local
+    volumes:
+      - logs:/data:ro
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from pathlib import Path; from analyzer import load_rules; rules, _ = load_rules(Path('rules.yaml')); assert rules"
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  honeypot:
+    name: ai-honeypot-network
+
+volumes:
+  logs:
+    name: ai-honeypot-logs
