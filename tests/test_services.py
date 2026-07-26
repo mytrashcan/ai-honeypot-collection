@@ -46,6 +46,10 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn(b"EXAMPLE", client.get("/.env").content)
         self.assertEqual(client.get("/actuator/health").json()["status"], "UP")
         self.assertEqual(client.get("/openapi.json").json()["openapi"], "3.1.0")
+        korean_users = client.get("/api/v1/사용자")
+        self.assertIn("합성 디코이", korean_users.json()["메시지"])
+        self.assertIn("관리자 로그인", client.get("/관리자").text)
+        self.assertEqual(client.get("/상태").json()["상태"], "정상")
         oversized = client.post("/api/v1/", content=b"x" * 65_537)
         self.assertEqual(oversized.status_code, 413)
 
@@ -58,6 +62,8 @@ class ServiceSmokeTests(unittest.TestCase):
 
         self.assertIn(b"EXAMPLE", client.get("/.env").content)
         self.assertIn(b"EXAMPLE INVALID PRIVATE KEY", client.get("/.ssh/id_rsa").content)
+        self.assertIn("합성 허니팟", client.get("/.환경").text)
+        self.assertIn("EXAMPLE", client.get("/설정.json").text)
 
     def test_c2_decoy_never_returns_a_stage(self) -> None:
         module = load_service("test_c2_decoy_server", "categories/c2-decoy/server.py")
@@ -102,6 +108,10 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn(b"AUTHORIZED SECURITY AUTOMATION CANARY", page.content)
         response = client.get("/_canary/EXAMPLE-AI-AGENT-CHECK")
         self.assertIn("No commands were run", response.json()["safety"])
+        korean_page = client.get("/ko")
+        self.assertIn("허가된 보안 자동화 카나리", korean_page.text)
+        korean_canary = client.get("/_canary/EXAMPLE-AI-AGENT-CHECK-KO")
+        self.assertIn("명령을 실행하지 않았고", korean_canary.json()["안전"])
 
 
 if __name__ == "__main__":

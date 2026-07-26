@@ -33,6 +33,27 @@ class DecoySafetyTests(unittest.TestCase):
         self.assertNotIn("BEGIN PRIVATE KEY", serialized)
         self.assertIn("BEGIN EXAMPLE INVALID PRIVATE KEY", serialized)
 
+    def test_korean_credential_files_are_explicit_examples(self) -> None:
+        category = ROOT / "categories" / "credential-honey"
+        korean_env = category / ".환경"
+        for line in korean_env.read_text(encoding="utf-8").splitlines():
+            if not line or line.startswith("#"):
+                continue
+            _, value = line.split("=", 1)
+            self.assertTrue(
+                "EXAMPLE" in value or ".invalid" in value,
+                msg=f"unsafe-looking decoy value in {korean_env}: {line}",
+            )
+
+        korean_config = category / "설정.json"
+        serialized = json.dumps(
+            json.loads(korean_config.read_text(encoding="utf-8")),
+            ensure_ascii=False,
+        )
+        self.assertIn("EXAMPLE", serialized)
+        self.assertNotIn("AKIA", serialized)
+        self.assertNotIn("BEGIN PRIVATE KEY", serialized)
+
 
 if __name__ == "__main__":
     unittest.main()

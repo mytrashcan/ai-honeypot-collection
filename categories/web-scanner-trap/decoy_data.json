@@ -15,6 +15,22 @@
     "api_token": "EXAMPLE-NOT-A-VALID-API-TOKEN-WEB-001",
     "database_url": "postgresql://EXAMPLE_USER:EXAMPLE_PASSWORD@db.example.invalid/example"
   },
+  "korean_api": {
+    "메시지": "합성 디코이 데이터입니다. 실제 사용자 정보가 아닙니다.",
+    "서비스": "EXAMPLE-재고-API",
+    "사용자": [
+      {
+        "권한": "예시-관리자",
+        "아이디": "EXAMPLE-USER-KO-001",
+        "이메일": "admin-ko@example.invalid"
+      }
+    ]
+  },
+  "korean_status": {
+    "상태": "정상",
+    "서비스": "EXAMPLE 합성 상태 서비스",
+    "안내": "실제 운영 시스템이 아닌 연구용 디코이입니다."
+  },
   "actuator_env": {
     "activeProfiles": [
       "EXAMPLE-DECOY"

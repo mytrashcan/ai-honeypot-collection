@@ -33,12 +33,35 @@ def create_app() -> FastAPI:
         mark_signal(request, "credential_file_probe", "environment_file_probe")
         return FileResponse(BASE_DIR / ".env", media_type="text/plain")
 
+    @app.get("/.환경")
+    @app.get("/설정/.환경")
+    def korean_env_file(request: Request) -> FileResponse:
+        mark_signal(
+            request,
+            "credential_file_probe",
+            "environment_file_probe",
+            "korean_localized_probe",
+        )
+        return FileResponse(BASE_DIR / ".환경", media_type="text/plain")
+
     @app.get("/config.json")
     @app.get("/config/config.json")
     @app.get("/credentials.json")
     def config_file(request: Request) -> FileResponse:
         mark_signal(request, "credential_file_probe", "cloud_credential_probe")
         return FileResponse(BASE_DIR / "config.json", media_type="application/json")
+
+    @app.get("/설정.json")
+    @app.get("/설정/설정.json")
+    @app.get("/자격증명.json")
+    def korean_config_file(request: Request) -> FileResponse:
+        mark_signal(
+            request,
+            "credential_file_probe",
+            "cloud_credential_probe",
+            "korean_localized_probe",
+        )
+        return FileResponse(BASE_DIR / "설정.json", media_type="application/json")
 
     @app.get("/.aws/credentials")
     def aws_credentials(request: Request) -> PlainTextResponse:

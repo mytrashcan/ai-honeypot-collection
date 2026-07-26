@@ -50,6 +50,11 @@ def create_app() -> FastAPI:
         mark_signal(request, "api_version_probe")
         return JSONResponse(decoys["api"])
 
+    @app.api_route("/api/v1/사용자", methods=["GET", "POST"])
+    def korean_api_users(request: Request) -> JSONResponse:
+        mark_signal(request, "api_version_probe", "korean_localized_probe")
+        return JSONResponse(decoys["korean_api"])
+
     @app.get("/actuator")
     def actuator_index(request: Request) -> JSONResponse:
         mark_signal(request, "spring_actuator_probe")
@@ -140,6 +145,23 @@ def create_app() -> FastAPI:
         mark_signal(request, "admin_panel_probe")
         return HTMLResponse(
             "<html><title>EXAMPLE Admin</title><body>Sign in</body></html>"
+        )
+
+    @app.get("/상태")
+    def korean_status(request: Request) -> JSONResponse:
+        mark_signal(request, "korean_localized_probe")
+        return JSONResponse(decoys["korean_status"])
+
+    @app.api_route("/관리자", methods=["GET", "POST"])
+    @app.api_route("/관리/로그인", methods=["GET", "POST"])
+    def korean_admin(request: Request) -> HTMLResponse:
+        mark_signal(request, "admin_panel_probe", "korean_localized_probe")
+        return HTMLResponse(
+            "<html lang='ko'><title>EXAMPLE 관리자</title><body>"
+            "<h1>관리자 로그인</h1><p>합성 디코이 페이지입니다.</p>"
+            '<form method="post"><input name="사용자">'
+            '<input name="비밀번호" type="password">'
+            '<button type="submit">로그인</button></form></body></html>'
         )
 
     return app

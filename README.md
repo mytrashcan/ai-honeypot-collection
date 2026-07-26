@@ -9,6 +9,11 @@ The repository is defensive research infrastructure. It contains no exploit
 delivery, credential validation, command execution, C2 tasking, or real
 secrets.
 
+## 🌐 Languages
+
+- [English](README.md)
+- [한국어](README.ko.md)
+
 ## Why AI-focused honeypots?
 
 Modern security agents combine model-driven planning with browsers, shells,
