@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "description": "Conservative automation and agentic-request indicators.",
+  "rules": [
+    {
+      "id": "known-scanner-user-agent",
+      "description": "User-Agent names a common automated security tool.",
+      "kind": "user_agent_contains",
+      "values": ["nuclei", "nikto", "sqlmap", "gobuster", "ffuf", "zaproxy"],
+      "weight": 4
+    },
+    {
+      "id": "high-value-probe-path",
+      "description": "Source requested a commonly enumerated sensitive path.",
+      "kind": "path",
+      "values": ["/.env", "/.git/config", "/actuator/env", "/wp-admin", "/graphql"],
+      "weight": 2
+    },
+    {
+      "id": "graphql-introspection",
+      "description": "The GraphQL service recognized an introspection operation.",
+      "kind": "signal",
+      "values": ["graphql_introspection"],
+      "weight": 3
+    },
+    {
+      "id": "cloud-metadata-probe",
+      "description": "A cloud metadata service path or protocol header was used.",
+      "kind": "signal",
+      "values": ["aws_metadata", "gcp_metadata", "azure_metadata"],
+      "weight": 4
+    },
+    {
+      "id": "agentic-canary-followed",
+      "description": "The source followed a natural-language automation canary.",
+      "kind": "signal",
+      "values": ["agentic_canary_followed"],
+      "weight": 8,
+      "ai_specific": true
+    },
+    {
+      "id": "self-declared-audit-agent",
+      "description": "The source supplied the optional X-Audit-Agent header.",
+      "kind": "header_present",
+      "values": ["x-audit-agent"],
+      "weight": 3,
+      "ai_specific": true
+    }
+  ],
+  "sequence": {
+    "id": "rapid-path-diversity",
+    "description": "Five distinct paths from one source within 30 seconds.",
+    "window_seconds": 30,
+    "minimum_distinct_paths": 5,
+    "weight": 3
+  }
+}

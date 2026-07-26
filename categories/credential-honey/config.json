@@ -1,0 +1,19 @@
+{
+  "_warning": "SYNTHETIC HONEYPOT MATERIAL. NO VALUE IS A REAL CREDENTIAL.",
+  "aws": {
+    "access_key_id": "EXAMPLE-NOT-A-VALID-AWS-ACCESS-KEY",
+    "region": "example-region-0",
+    "secret_access_key": "EXAMPLE-NOT-A-VALID-AWS-SECRET"
+  },
+  "azure": {
+    "client_id": "EXAMPLE-NOT-A-UUID-AZURE-CLIENT",
+    "client_secret": "EXAMPLE-NOT-A-VALID-AZURE-SECRET",
+    "tenant_id": "EXAMPLE-NOT-A-UUID-AZURE-TENANT"
+  },
+  "gcp": {
+    "client_email": "example-service-account@example.invalid",
+    "private_key": "-----BEGIN EXAMPLE INVALID PRIVATE KEY-----\\nNOT-KEY-MATERIAL\\n-----END EXAMPLE INVALID PRIVATE KEY-----",
+    "project_id": "example-decoy-project"
+  },
+  "tracking_token": "EXAMPLE-CREDENTIAL-HONEY-TRACK-002"
+}

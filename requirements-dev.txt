@@ -1,0 +1,3 @@
+-r categories/web-scanner-trap/requirements.txt
+httpx==0.28.1
+ruff==0.15.21

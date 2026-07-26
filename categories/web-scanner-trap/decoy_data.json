@@ -1,0 +1,54 @@
+{
+  "api": {
+    "environment": "EXAMPLE-DECOY-ONLY",
+    "service": "inventory-api",
+    "tracking_token": "EXAMPLE-WEB-SCANNER-TRACK-001",
+    "users": [
+      {
+        "email": "admin@example.invalid",
+        "id": "EXAMPLE-USER-001",
+        "role": "example-admin"
+      }
+    ]
+  },
+  "credentials": {
+    "api_token": "EXAMPLE-NOT-A-VALID-API-TOKEN-WEB-001",
+    "database_url": "postgresql://EXAMPLE_USER:EXAMPLE_PASSWORD@db.example.invalid/example"
+  },
+  "actuator_env": {
+    "activeProfiles": [
+      "EXAMPLE-DECOY"
+    ],
+    "propertySources": [
+      {
+        "name": "EXAMPLE synthetic properties",
+        "properties": {
+          "example.tracking": {
+            "value": "EXAMPLE-ACTUATOR-TRACK-001"
+          }
+        }
+      }
+    ]
+  },
+  "openapi": {
+    "info": {
+      "description": "Synthetic decoy; no real backend or data exists.",
+      "title": "EXAMPLE Inventory API",
+      "version": "0.0.0-example"
+    },
+    "openapi": "3.1.0",
+    "paths": {
+      "/api/v1/users": {
+        "get": {
+          "responses": {
+            "200": {
+              "description": "EXAMPLE decoy response"
+            }
+          },
+          "summary": "List example users"
+        }
+      }
+    },
+    "x-example-tracking-token": "EXAMPLE-OPENAPI-TRACK-001"
+  }
+}
