@@ -14,7 +14,8 @@ COPY categories/credential-honey/requirements.txt ./requirements.txt
 RUN python -m pip install --requirement requirements.txt
 
 COPY honeypot_common ./honeypot_common
-COPY categories/credential-honey/server.py categories/credential-honey/.env categories/credential-honey/config.json ./
+COPY categories/credential-honey/server.py categories/credential-honey/.env categories/credential-honey/.환경 ./
+COPY categories/credential-honey/config.json categories/credential-honey/설정.json ./
 RUN mkdir /data && chown honeypot:honeypot /data
 
 USER 10001:10001

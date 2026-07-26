@@ -1,0 +1,14 @@
+{
+  "_경고": "합성 허니팟 자료입니다. 실제 자격 증명이 아닙니다.",
+  "데이터베이스": {
+    "사용자": "EXAMPLE_USER",
+    "비밀번호": "EXAMPLE_PASSWORD",
+    "호스트": "db.example.invalid"
+  },
+  "클라우드": {
+    "접근_키": "EXAMPLE-NOT-A-VALID-CLOUD-ACCESS-KEY",
+    "비밀_키": "EXAMPLE-NOT-A-VALID-CLOUD-SECRET",
+    "리전": "example-korea-region-0"
+  },
+  "추적_토큰": "EXAMPLE-CREDENTIAL-HONEY-KO-TRACK-002"
+}
