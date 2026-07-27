@@ -22,3 +22,4 @@ docker-compose.override.yml
 .env
 .env.*
 !categories/credential-honey/.env
+!categories/fake-site-farm/site/.env

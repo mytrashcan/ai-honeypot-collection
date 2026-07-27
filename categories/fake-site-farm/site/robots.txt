@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://nexusflow.tech/sitemap.xml

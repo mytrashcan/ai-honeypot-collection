@@ -46,6 +46,7 @@ limitations behind that model.
 | [`cloud-metadata-trap`](categories/cloud-metadata-trap/) | AWS, GCP, and Azure metadata path/header canaries | `8084` |
 | [`agentic-lure`](categories/agentic-lure/) | Benign natural-language instruction-following canary | `8085` |
 | [`ai-fingerprint`](categories/ai-fingerprint/) | Offline, conservative analysis of combined JSONL events | n/a |
+| [`fake-site-farm`](categories/fake-site-farm/) | Polished static company site combining scanner-visible lures from all eight categories | n/a |
 
 > **Note:** `credential-honey` and `token-drain-maze` both use port `8081` by
 > default. Change one service's host port before running them simultaneously.
