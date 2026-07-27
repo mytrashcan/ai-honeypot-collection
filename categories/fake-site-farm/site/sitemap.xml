@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://nexusflow.tech/</loc></url>
+  <url><loc>https://nexusflow.tech/about</loc></url>
+  <url><loc>https://nexusflow.tech/products</loc></url>
+  <url><loc>https://nexusflow.tech/pricing</loc></url>
+  <url><loc>https://nexusflow.tech/docs</loc></url>
+  <url><loc>https://nexusflow.tech/api</loc></url>
+  <url><loc>https://nexusflow.tech/blog</loc></url>
+  <url><loc>https://nexusflow.tech/careers</loc></url>
+  <url><loc>https://nexusflow.tech/contact</loc></url>
+  <url><loc>https://nexusflow.tech/.env</loc></url>
+  <url><loc>https://nexusflow.tech/admin</loc></url>
+  <url><loc>https://nexusflow.tech/graphql</loc></url>
+</urlset>

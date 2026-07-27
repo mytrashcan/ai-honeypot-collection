@@ -48,6 +48,7 @@
 | [`cloud-metadata-trap`](categories/cloud-metadata-trap/README.ko.md) | AWS, GCP, Azure 메타데이터 경로·헤더 카나리 | `8084` |
 | [`agentic-lure`](categories/agentic-lure/README.ko.md) | 한국어를 포함한 무해한 자연어 지시 이행 카나리 | `8085` |
 | [`ai-fingerprint`](categories/ai-fingerprint/README.ko.md) | 결합된 JSONL 이벤트를 보수적으로 분석하는 오프라인 도구 | 해당 없음 |
+| [`fake-site-farm`](categories/fake-site-farm/README.ko.md) | 기존 8개 카테고리의 스캐너 탐지용 미끼를 결합한 정교한 정적 회사 사이트 | 해당 없음 |
 
 > **참고:** `credential-honey`와 `token-drain-maze`는 모두 기본적으로
 > `8081` 포트를 사용합니다. 두 서비스를 동시에 실행하기 전에 한 서비스의
