@@ -42,6 +42,44 @@ range can be configured with `MAZE_MAX_DEPTH`, `MAZE_TARPIT_MIN_MS`, and
 `MAZE_TARPIT_MAX_MS`. Keep public deployments isolated behind a reverse proxy
 and operate them only in address space you own or are authorized to monitor.
 
+## Verify all strategies
+
+From the repository root, build and start a fresh image:
+
+```bash
+docker compose -f categories/token-drain-maze/docker-compose.yml build --no-cache
+docker compose -f categories/token-drain-maze/docker-compose.yml up --detach
+```
+
+Exercise the entry path, all seven trap strategies, and the healthcheck:
+
+```bash
+curl -s http://127.0.0.1:8081/api/v1/users
+curl -s http://127.0.0.1:8081/admin/config
+curl -s http://127.0.0.1:8081/secrets/aws.json
+curl -s http://127.0.0.1:8081/config.json
+curl -s http://127.0.0.1:8081/.env
+curl -s http://127.0.0.1:8081/.env
+curl -s http://127.0.0.1:8081/backup/dump | wc -c
+timeout 5 curl -s 'http://127.0.0.1:8081/api/v1/users?slow=true' | wc -c
+curl -s 'http://127.0.0.1:8081/page.html?html=true' | head -5
+curl -s http://127.0.0.1:8081/healthz
+```
+
+The responses should expose a finite credibility chain, three Hydra child
+paths, an explicitly fake terminal secret response, and the next reference in
+the logic loop. Repeated `/.env` requests should show changing mutation data.
+The dump response should be larger than 10,000 bytes, while the randomized
+tarpit may return only a partial body (or zero bytes) before `timeout` exits.
+The HTML response should contain an `EXAMPLE AI instruction` comment, and the
+healthcheck should return `{"status":"ok"}`.
+
+Stop and remove the container after verification:
+
+```bash
+docker compose -f categories/token-drain-maze/docker-compose.yml down
+```
+
 ## Safety and interpretation
 
 The traps produce behavioral signals, not proof that a visitor is malicious or

@@ -43,6 +43,44 @@ docker compose logs --follow
 설정할 수 있습니다. 공개 배포는 격리된 역방향 프록시 뒤에 두고, 본인이
 소유하거나 명시적으로 허가받은 주소 공간에서만 운영하세요.
 
+## 모든 전략 검증
+
+저장소 루트에서 새 이미지를 빌드하고 실행합니다.
+
+```bash
+docker compose -f categories/token-drain-maze/docker-compose.yml build --no-cache
+docker compose -f categories/token-drain-maze/docker-compose.yml up --detach
+```
+
+진입 경로, 일곱 가지 트랩 전략, 헬스체크를 모두 실행합니다.
+
+```bash
+curl -s http://127.0.0.1:8081/api/v1/users
+curl -s http://127.0.0.1:8081/admin/config
+curl -s http://127.0.0.1:8081/secrets/aws.json
+curl -s http://127.0.0.1:8081/config.json
+curl -s http://127.0.0.1:8081/.env
+curl -s http://127.0.0.1:8081/.env
+curl -s http://127.0.0.1:8081/backup/dump | wc -c
+timeout 5 curl -s 'http://127.0.0.1:8081/api/v1/users?slow=true' | wc -c
+curl -s 'http://127.0.0.1:8081/page.html?html=true' | head -5
+curl -s http://127.0.0.1:8081/healthz
+```
+
+응답에는 유한한 신뢰도 체인, 히드라 하위 경로 세 개, 명시적으로 가짜인
+종단 비밀 응답, 로직 루프의 다음 참조가 나타나야 합니다. `/.env`를 반복
+요청하면 변이 데이터가 달라져야 합니다. 덤프 응답은 10,000바이트보다 커야
+하며, 무작위 지연이 적용되는 타핏은 `timeout` 종료 전까지 일부 본문만
+반환하거나 0바이트를 반환할 수 있습니다. HTML 응답에는
+`EXAMPLE AI instruction` 주석이 포함되어야 하고, 헬스체크는
+`{"status":"ok"}`를 반환해야 합니다.
+
+검증 후 컨테이너를 중지하고 제거합니다.
+
+```bash
+docker compose -f categories/token-drain-maze/docker-compose.yml down
+```
+
 ## 안전과 해석
 
 트랩에서 생성된 신호만으로 방문자가 악의적이거나 AI 기반이라고 단정할 수
