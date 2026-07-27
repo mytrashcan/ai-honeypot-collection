@@ -42,11 +42,16 @@
 | --- | --- | ---: |
 | [`web-scanner-trap`](categories/web-scanner-trap/README.ko.md) | API, Spring Actuator, WordPress, Git, 환경 파일, API 문서 및 한국어 경로 디코이 | `8080` |
 | [`credential-honey`](categories/credential-honey/README.ko.md) | 명백히 가짜인 환경 파일, 클라우드 자격 증명, SSH 키 및 한국어 설정 파일 | `8081` |
+| [`token-drain-maze`](categories/token-drain-maze/README.ko.md) | AI 봇의 토큰을 고갈시키는 가짜 취약점의 끝없는 미로 | `8081` |
 | [`c2-decoy`](categories/c2-decoy/README.ko.md) | C2 지문 식별 연구를 위한 비활성 HTTP 응답 형태 | `8082` |
 | [`graphql-trap`](categories/graphql-trap/README.ko.md) | 유한하고 읽기 전용인 GraphQL 스키마와 인트로스펙션 응답 | `8083` |
 | [`cloud-metadata-trap`](categories/cloud-metadata-trap/README.ko.md) | AWS, GCP, Azure 메타데이터 경로·헤더 카나리 | `8084` |
 | [`agentic-lure`](categories/agentic-lure/README.ko.md) | 한국어를 포함한 무해한 자연어 지시 이행 카나리 | `8085` |
 | [`ai-fingerprint`](categories/ai-fingerprint/README.ko.md) | 결합된 JSONL 이벤트를 보수적으로 분석하는 오프라인 도구 | 해당 없음 |
+
+> **참고:** `credential-honey`와 `token-drain-maze`는 모두 기본적으로
+> `8081` 포트를 사용합니다. 두 서비스를 동시에 실행하기 전에 한 서비스의
+> 호스트 포트를 변경하세요.
 
 배포 가능한 마지막 두 카테고리는 연구 결과를 바탕으로 추가되었습니다. 클라우드
 메타데이터 탐색에는 제공자별 프로토콜 신호가 있으며, 프롬프트를 따르는 행동은
