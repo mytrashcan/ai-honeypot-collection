@@ -40,11 +40,15 @@ limitations behind that model.
 | --- | --- | ---: |
 | [`web-scanner-trap`](categories/web-scanner-trap/) | Decoy API, Spring Actuator, WordPress, Git, environment, and API-doc paths | `8080` |
 | [`credential-honey`](categories/credential-honey/) | Clearly fake environment, cloud credential, and SSH-key files | `8081` |
+| [`token-drain-maze`](categories/token-drain-maze/) | Endless maze of fake vulnerabilities that exhausts AI bot tokens | `8081` |
 | [`c2-decoy`](categories/c2-decoy/) | Inert HTTP response shapes for C2-fingerprinting research | `8082` |
 | [`graphql-trap`](categories/graphql-trap/) | Finite, read-only GraphQL schema and introspection responses | `8083` |
 | [`cloud-metadata-trap`](categories/cloud-metadata-trap/) | AWS, GCP, and Azure metadata path/header canaries | `8084` |
 | [`agentic-lure`](categories/agentic-lure/) | Benign natural-language instruction-following canary | `8085` |
 | [`ai-fingerprint`](categories/ai-fingerprint/) | Offline, conservative analysis of combined JSONL events | n/a |
+
+> **Note:** `credential-honey` and `token-drain-maze` both use port `8081` by
+> default. Change one service's host port before running them simultaneously.
 
 The last two deployable categories were added from the research: cloud metadata
 probing has provider-specific protocol signals, while prompt-following is one
