@@ -54,6 +54,22 @@ The last two deployable categories were added from the research: cloud metadata
 probing has provider-specific protocol signals, while prompt-following is one
 of the few observations more specific to an agent than to a fixed wordlist.
 
+## Benchmarks
+
+The following estimates illustrate the resource waste that `token-drain-maze`
+can impose on AI bots. Costs assume GPT-4o or Claude Sonnet pricing of
+approximately $3-15 per million input tokens; actual usage varies by model,
+agent behavior, and request limits.
+
+| Metric | Estimate | Notes |
+| --- | --- | --- |
+| **Response size** | ~500-2000 chars per endpoint | 125-500 tokens per request |
+| **Hydra endpoint explosion** | 3^n paths (n=1..20) | ~3.5B theoretical paths at depth 20; realistically bots cap at 50-200 requests |
+| **Single bot session cost** | $0.50-5.00 per hour | Input + output tokens for ~1000 requests |
+| **Token-Intensive payload** | 10KB = ~2,500 tokens per request | AI tries to decode/analyze Base64 blob |
+| **Tarpit time waste** | 0.5-3s per chunk | Bot connections held open, consuming socket/timeout budgets |
+| **Mutating discovery** | 10x vulns per path | Bot re-analyzes same path multiple times |
+
 ## Quick start
 
 Each honeypot is independently deployable. Docker Compose binds to loopback by
