@@ -55,6 +55,7 @@
 | [`llm-gateway-trap`](categories/llm-gateway-trap/README.md) | 고정된 OpenAI·Ollama 호환 게이트웨이 응답 | `8091` |
 | [`browser-workflow-trap`](categories/browser-workflow-trap/README.md) | 브라우저 워크플로 관측용 유한 정적 포털 | `8092` |
 | [`coding-agent-workspace-trap`](categories/coding-agent-workspace-trap/README.md) | 합성 에이전트 지시문, 매니페스트, 소스 코드, 테스트 파일 | `8093` |
+| [`reverse-jailbreak-trap`](categories/reverse-jailbreak-trap/README.md) | 에이전트 행동과 맹목적 크롤링을 구분하기 위한 합성 안전 인터록 중단 프롬프트 | `8094` |
 | [`ai-fingerprint`](categories/ai-fingerprint/README.ko.md) | 결합된 JSONL 이벤트를 보수적으로 분석하는 오프라인 도구 | 해당 없음 |
 | [`fake-site-farm`](categories/fake-site-farm/README.ko.md) | 모든 배포 가능 카테고리의 스캐너 탐지용 미끼를 결합한 정교한 정적 회사 사이트 | 해당 없음 |
 
