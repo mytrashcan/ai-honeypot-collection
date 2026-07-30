@@ -173,6 +173,43 @@ class ServiceSmokeTests(unittest.TestCase):
         cancelled = client.post("/tasks/EXAMPLE_TASK_ID:cancel")
         self.assertEqual(cancelled.json()["status"]["state"], "completed")
 
+    def test_vector_store_rankings_are_fixed_and_mutations_fail(self) -> None:
+        module = load_service(
+            "test_vector_store_app",
+            "categories/vector-store-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        stores = client.get("/v1/vector_stores").json()
+        self.assertEqual(stores["data"][0]["id"], "EXAMPLE_STORE_ID")
+
+        search = client.post(
+            "/v1/vector_stores/EXAMPLE_STORE_ID/search",
+            json={"query": "ignored"},
+        ).json()
+        self.assertEqual(
+            [result["score"] for result in search["data"]],
+            [0.91, 0.73],
+        )
+
+        chroma = client.post(
+            "/api/v1/collections/EXAMPLE_COL/query",
+            json={"query_texts": ["ignored"]},
+        ).json()
+        self.assertEqual(chroma["ids"][0][0], "EXAMPLE_POINT_001")
+
+        points = client.post(
+            "/collections/EXAMPLE_COL/points/query",
+            json={"query": [0.0, 0.0]},
+        ).json()
+        self.assertEqual(points["result"]["points"][0]["score"], 0.91)
+
+        self.assertEqual(client.post("/v1/vector_stores", json={}).status_code, 405)
+        self.assertEqual(
+            client.put("/collections/EXAMPLE_COL/points", json={"points": []}).status_code,
+            405,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

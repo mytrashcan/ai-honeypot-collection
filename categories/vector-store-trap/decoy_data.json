@@ -1,0 +1,184 @@
+{
+  "openai_vector_stores": {
+    "object": "list",
+    "data": [
+      {
+        "id": "EXAMPLE_STORE_ID",
+        "object": "vector_store",
+        "name": "EXAMPLE Documentation Store",
+        "status": "completed",
+        "usage_bytes": 1024,
+        "file_counts": {
+          "in_progress": 0,
+          "completed": 2,
+          "failed": 0,
+          "cancelled": 0,
+          "total": 2
+        },
+        "created_at": 946684800
+      }
+    ],
+    "first_id": "EXAMPLE_STORE_ID",
+    "last_id": "EXAMPLE_STORE_ID",
+    "has_more": false
+  },
+  "openai_vector_store": {
+    "id": "EXAMPLE_STORE_ID",
+    "object": "vector_store",
+    "name": "EXAMPLE Documentation Store",
+    "status": "completed",
+    "usage_bytes": 1024,
+    "file_counts": {
+      "in_progress": 0,
+      "completed": 2,
+      "failed": 0,
+      "cancelled": 0,
+      "total": 2
+    },
+    "created_at": 946684800,
+    "metadata": {
+      "environment": "EXAMPLE_DECOY_ONLY",
+      "documentation_url": "https://docs.example.invalid/"
+    }
+  },
+  "openai_files": {
+    "object": "list",
+    "data": [
+      {
+        "id": "EXAMPLE_FILE_001",
+        "object": "vector_store.file",
+        "vector_store_id": "EXAMPLE_STORE_ID",
+        "status": "completed",
+        "created_at": 946684800
+      },
+      {
+        "id": "EXAMPLE_FILE_002",
+        "object": "vector_store.file",
+        "vector_store_id": "EXAMPLE_STORE_ID",
+        "status": "completed",
+        "created_at": 946684801
+      }
+    ],
+    "first_id": "EXAMPLE_FILE_001",
+    "last_id": "EXAMPLE_FILE_002",
+    "has_more": false
+  },
+  "openai_search": {
+    "object": "vector_store.search_results.page",
+    "search_query": [
+      "EXAMPLE ignored query"
+    ],
+    "data": [
+      {
+        "file_id": "EXAMPLE_FILE_001",
+        "filename": "EXAMPLE_getting_started.txt",
+        "score": 0.91,
+        "attributes": {
+          "source": "https://docs.example.invalid/getting-started"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "EXAMPLE ranked result one from a fixed synthetic fixture"
+          }
+        ]
+      },
+      {
+        "file_id": "EXAMPLE_FILE_002",
+        "filename": "EXAMPLE_safety.txt",
+        "score": 0.73,
+        "attributes": {
+          "source": "https://docs.example.invalid/safety"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "EXAMPLE ranked result two; no retrieval was performed"
+          }
+        ]
+      }
+    ],
+    "has_more": false,
+    "next_page": null
+  },
+  "chroma_collections": [
+    {
+      "id": "EXAMPLE_COL",
+      "name": "EXAMPLE_docs",
+      "metadata": {
+        "description": "EXAMPLE immutable synthetic collection"
+      },
+      "tenant": "EXAMPLE_TENANT",
+      "database": "EXAMPLE_DATABASE"
+    }
+  ],
+  "chroma_query": {
+    "ids": [
+      [
+        "EXAMPLE_POINT_001",
+        "EXAMPLE_POINT_002"
+      ]
+    ],
+    "embeddings": null,
+    "documents": [
+      [
+        "EXAMPLE fixed Chroma result one",
+        "EXAMPLE fixed Chroma result two"
+      ]
+    ],
+    "uris": [
+      [
+        "https://docs.example.invalid/getting-started",
+        "https://docs.example.invalid/safety"
+      ]
+    ],
+    "included": [
+      "documents",
+      "metadatas",
+      "distances",
+      "uris"
+    ],
+    "metadatas": [
+      [
+        {
+          "source": "EXAMPLE_DOCUMENTATION"
+        },
+        {
+          "source": "EXAMPLE_SAFETY"
+        }
+      ]
+    ],
+    "distances": [
+      [
+        0.09,
+        0.27
+      ]
+    ]
+  },
+  "points_query": {
+    "result": {
+      "points": [
+        {
+          "id": "EXAMPLE_POINT_001",
+          "version": 1,
+          "score": 0.91,
+          "payload": {
+            "text": "EXAMPLE fixed point result one",
+            "source": "https://docs.example.invalid/getting-started"
+          }
+        },
+        {
+          "id": "EXAMPLE_POINT_002",
+          "version": 1,
+          "score": 0.73,
+          "payload": {
+            "text": "EXAMPLE fixed point result two",
+            "source": "https://docs.example.invalid/safety"
+          }
+        }
+      ]
+    },
+    "status": "ok",
+    "time": 0.001
+  }
+}
