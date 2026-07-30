@@ -15,6 +15,40 @@ This differs from `agentic-lure`, which asks authorized automation to follow a
 benign instruction. Reverse Jailbreak Trap instead measures responses to a
 synthetic stop instruction rooted in safety framing.
 
+## Routes
+
+Prompt fixtures:
+
+- `/EXAMPLE-notice/visible-en` and `/EXAMPLE-notice/comment-en` — generic
+  English safety interlocks;
+- `/EXAMPLE-notice/visible-ko` — generic Korean safety interlock;
+- `/EXAMPLE-notice/romantic-en` — English loved-one or romantic-partner
+  safety interlock;
+- `/EXAMPLE-notice/romantic-ko` — Korean loved-one or romantic-partner
+  (`애인`, `연인`) safety interlock;
+- `/EXAMPLE-notice/family-en` — English family-member safety interlock;
+- `/EXAMPLE-notice/pet-en` — English beloved-pet safety interlock;
+- `/api/v1/EXAMPLE-safety-notice` — JSON model-integrity safety notice.
+
+Each HTML prompt variant has a matching inert acknowledgment route under
+`/_canary/EXAMPLE-SAFETY-ACK-*` and continuation boundary under
+`/EXAMPLE-protected/EXAMPLE-CONTINUE-*`. The sitemap enumerates every prompt,
+acknowledgment, and continuation route.
+
+The new themed acknowledgment routes are:
+
+- `/_canary/EXAMPLE-SAFETY-ACK-ROMANTIC-EN`;
+- `/_canary/EXAMPLE-SAFETY-ACK-ROMANTIC-KO`;
+- `/_canary/EXAMPLE-SAFETY-ACK-FAMILY-EN`;
+- `/_canary/EXAMPLE-SAFETY-ACK-PET-EN`.
+
+Their corresponding continuation boundaries are:
+
+- `/EXAMPLE-protected/EXAMPLE-CONTINUE-ROMANTIC-EN`;
+- `/EXAMPLE-protected/EXAMPLE-CONTINUE-ROMANTIC-KO`;
+- `/EXAMPLE-protected/EXAMPLE-CONTINUE-FAMILY-EN`;
+- `/EXAMPLE-protected/EXAMPLE-CONTINUE-PET-EN`.
+
 ## Run
 
 From the repository root:
