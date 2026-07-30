@@ -210,6 +210,49 @@ class ServiceSmokeTests(unittest.TestCase):
             405,
         )
 
+    def test_rag_pipeline_is_deterministic_and_dry_run_only(self) -> None:
+        module = load_service(
+            "test_rag_pipeline_app",
+            "categories/rag-pipeline-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        sources = client.get("/api/v1/sources").json()["sources"]
+        self.assertEqual(sources[0]["id"], "EXAMPLE_SOURCE_ID")
+        self.assertIn(".invalid", sources[0]["base_url"])
+
+        ingest = client.post(
+            "/api/v1/ingest",
+            json={"url": "https://submitted.example.invalid/ignored"},
+        )
+        self.assertEqual(ingest.status_code, 202)
+        self.assertTrue(ingest.json()["dry_run"])
+        self.assertEqual(ingest.json()["fetched_urls"], 0)
+
+        retrieval = client.post(
+            "/api/v1/retrieval/query",
+            json={"query": "ignored"},
+        ).json()
+        self.assertEqual(
+            [result["score"] for result in retrieval["results"]],
+            [0.91, 0.73],
+        )
+
+        rerank = client.post("/api/v1/rerank", json={"documents": ["ignored"]}).json()
+        self.assertTrue(rerank["dry_run"])
+        self.assertEqual(rerank["model"], "EXAMPLE_FIXED_RERANKER")
+
+        upload = client.post(
+            "/api/v1/ingest",
+            content=b"not-a-real-file",
+            headers={"content-type": "application/octet-stream"},
+        )
+        self.assertEqual(upload.status_code, 415)
+
+        reindex = client.post("/admin/reindex", json={})
+        self.assertEqual(reindex.status_code, 202)
+        self.assertEqual(reindex.json()["documents_reindexed"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

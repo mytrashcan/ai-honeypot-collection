@@ -1,0 +1,111 @@
+{
+  "sources": [
+    {
+      "id": "EXAMPLE_SOURCE_ID",
+      "name": "EXAMPLE Documentation Source",
+      "type": "web",
+      "base_url": "https://docs.example.invalid/",
+      "status": "ready",
+      "document_count": 2
+    }
+  ],
+  "connectors": [
+    {
+      "id": "EXAMPLE_CONNECTOR_ID",
+      "name": "EXAMPLE Static Documentation Connector",
+      "type": "web",
+      "endpoint": "https://connector.example.invalid/",
+      "enabled": false,
+      "mode": "EXAMPLE_DRY_RUN_ONLY"
+    }
+  ],
+  "documents": [
+    {
+      "id": "EXAMPLE_DOCUMENT_001",
+      "source_id": "EXAMPLE_SOURCE_ID",
+      "title": "EXAMPLE Getting Started",
+      "url": "https://docs.example.invalid/getting-started",
+      "status": "indexed"
+    },
+    {
+      "id": "EXAMPLE_DOCUMENT_002",
+      "source_id": "EXAMPLE_SOURCE_ID",
+      "title": "EXAMPLE Safety Guide",
+      "url": "https://docs.example.invalid/safety",
+      "status": "indexed"
+    }
+  ],
+  "ingest_dry_run": {
+    "dry_run": true,
+    "job_id": "EXAMPLE_JOB_ID",
+    "status": "completed",
+    "accepted_documents": 0,
+    "fetched_urls": 0,
+    "parsed_uploads": 0,
+    "detail": "EXAMPLE request ignored; no URLs were fetched and no content was parsed"
+  },
+  "retrieval": {
+    "dry_run": true,
+    "query": "EXAMPLE ignored query",
+    "results": [
+      {
+        "rank": 1,
+        "document_id": "EXAMPLE_DOCUMENT_001",
+        "score": 0.91,
+        "text": "EXAMPLE fixed retrieval result one",
+        "source": "https://docs.example.invalid/getting-started"
+      },
+      {
+        "rank": 2,
+        "document_id": "EXAMPLE_DOCUMENT_002",
+        "score": 0.73,
+        "text": "EXAMPLE fixed retrieval result two",
+        "source": "https://docs.example.invalid/safety"
+      }
+    ],
+    "detail": "EXAMPLE deterministic fixture; no retrieval backend was queried"
+  },
+  "rerank": {
+    "dry_run": true,
+    "model": "EXAMPLE_FIXED_RERANKER",
+    "results": [
+      {
+        "index": 0,
+        "rank": 1,
+        "score": 0.88,
+        "document": {
+          "id": "EXAMPLE_DOCUMENT_001",
+          "text": "EXAMPLE fixed reranked document one"
+        }
+      },
+      {
+        "index": 1,
+        "rank": 2,
+        "score": 0.64,
+        "document": {
+          "id": "EXAMPLE_DOCUMENT_002",
+          "text": "EXAMPLE fixed reranked document two"
+        }
+      }
+    ],
+    "detail": "EXAMPLE deterministic fixture; no model or external API was called"
+  },
+  "job": {
+    "id": "EXAMPLE_JOB_ID",
+    "status": "completed",
+    "dry_run": true,
+    "source_id": "EXAMPLE_SOURCE_ID",
+    "documents_seen": 0,
+    "documents_indexed": 0,
+    "started_at": "2000-01-01T00:00:00Z",
+    "completed_at": "2000-01-01T00:00:00Z",
+    "detail": "EXAMPLE inert job fixture; no ingestion occurred"
+  },
+  "reindex_dry_run": {
+    "dry_run": true,
+    "job_id": "EXAMPLE_JOB_ID",
+    "status": "completed",
+    "documents_reindexed": 0,
+    "detail": "EXAMPLE reindex request ignored; no index was changed"
+  }
+}
