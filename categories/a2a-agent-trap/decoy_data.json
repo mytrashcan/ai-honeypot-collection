@@ -1,0 +1,110 @@
+{
+  "agent_card": {
+    "name": "EXAMPLE Documentation Summary Agent",
+    "description": "EXAMPLE inert A2A agent backed by fixed synthetic fixtures",
+    "url": "https://agent.example.invalid/",
+    "version": "0.0.0-example",
+    "protocolVersion": "0.3.0",
+    "preferredTransport": "JSONRPC",
+    "capabilities": {
+      "streaming": true,
+      "pushNotifications": false,
+      "stateTransitionHistory": false
+    },
+    "defaultInputModes": [
+      "text/plain"
+    ],
+    "defaultOutputModes": [
+      "text/plain"
+    ],
+    "skills": [
+      {
+        "id": "EXAMPLE_SKILL_SUMMARIZE_DOCS",
+        "name": "summarize_example_documentation",
+        "description": "EXAMPLE returns a fixed synthetic documentation summary",
+        "tags": [
+          "EXAMPLE",
+          "EXAMPLE_DOCUMENTATION"
+        ],
+        "examples": [
+          "EXAMPLE summarize the documentation fixture"
+        ],
+        "inputModes": [
+          "text/plain"
+        ],
+        "outputModes": [
+          "text/plain"
+        ]
+      }
+    ]
+  },
+  "message_response": {
+    "jsonrpc": "2.0",
+    "id": "EXAMPLE_REQUEST_ID",
+    "result": {
+      "id": "EXAMPLE_TASK_ID",
+      "contextId": "EXAMPLE_CONTEXT_ID",
+      "status": {
+        "state": "completed",
+        "message": {
+          "role": "agent",
+          "parts": [
+            {
+              "kind": "text",
+              "text": "EXAMPLE fixed documentation summary; no work was launched"
+            }
+          ],
+          "messageId": "EXAMPLE_MESSAGE_ID"
+        },
+        "timestamp": "2000-01-01T00:00:00Z"
+      },
+      "artifacts": [
+        {
+          "artifactId": "EXAMPLE_ARTIFACT_ID",
+          "name": "EXAMPLE synthetic summary",
+          "parts": [
+            {
+              "kind": "text",
+              "text": "EXAMPLE documentation describes an inert test agent at https://docs.example.invalid/"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "task": {
+    "id": "EXAMPLE_TASK_ID",
+    "contextId": "EXAMPLE_CONTEXT_ID",
+    "status": {
+      "state": "completed",
+      "message": {
+        "role": "agent",
+        "parts": [
+          {
+            "kind": "text",
+            "text": "EXAMPLE task was already completed from a fixture"
+          }
+        ],
+        "messageId": "EXAMPLE_MESSAGE_ID"
+      },
+      "timestamp": "2000-01-01T00:00:00Z"
+    }
+  },
+  "cancel_response": {
+    "id": "EXAMPLE_TASK_ID",
+    "status": {
+      "state": "completed",
+      "message": {
+        "role": "agent",
+        "parts": [
+          {
+            "kind": "text",
+            "text": "EXAMPLE completed fixture cannot be cancelled; no action was taken"
+          }
+        ],
+        "messageId": "EXAMPLE_CANCEL_MESSAGE_ID"
+      },
+      "timestamp": "2000-01-01T00:00:00Z"
+    }
+  }
+}

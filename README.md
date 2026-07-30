@@ -45,15 +45,23 @@ limitations behind that model.
 | [`graphql-trap`](categories/graphql-trap/) | Finite, read-only GraphQL schema and introspection responses | `8083` |
 | [`cloud-metadata-trap`](categories/cloud-metadata-trap/) | AWS, GCP, and Azure metadata path/header canaries | `8084` |
 | [`agentic-lure`](categories/agentic-lure/) | Benign natural-language instruction-following canary | `8085` |
+| [`mcp-server-trap`](categories/mcp-server-trap/) | Inert MCP discovery, tool, resource, and prompt fixtures | `8086` |
+| [`a2a-agent-trap`](categories/a2a-agent-trap/) | Fixed Agent Card, message, and task protocol fixtures | `8087` |
+| [`vector-store-trap`](categories/vector-store-trap/) | Read-only vector-store enumeration and deterministic ranking fixtures | `8088` |
+| [`rag-pipeline-trap`](categories/rag-pipeline-trap/) | Dry-run ingestion, retrieval, reranking, and job fixtures | `8089` |
+| [`model-registry-trap`](categories/model-registry-trap/) | MLflow, Ollama, OCI, and model-config metadata fixtures | `8090` |
+| [`llm-gateway-trap`](categories/llm-gateway-trap/) | Fixed OpenAI- and Ollama-compatible gateway responses | `8091` |
+| [`browser-workflow-trap`](categories/browser-workflow-trap/) | Finite static portal for browser-workflow observation | `8092` |
+| [`coding-agent-workspace-trap`](categories/coding-agent-workspace-trap/) | Synthetic agent instructions, manifests, source, and tests | `8093` |
 | [`ai-fingerprint`](categories/ai-fingerprint/) | Offline, conservative analysis of combined JSONL events | n/a |
-| [`fake-site-farm`](categories/fake-site-farm/) | Polished static company site combining scanner-visible lures from all eight categories | n/a |
+| [`fake-site-farm`](categories/fake-site-farm/) | Polished static company site combining multiple scanner-visible lures | n/a |
 
 > **Note:** `credential-honey` and `token-drain-maze` both use port `8081` by
 > default. Change one service's host port before running them simultaneously.
 
-The last two deployable categories were added from the research: cloud metadata
-probing has provider-specific protocol signals, while prompt-following is one
-of the few observations more specific to an agent than to a fixed wordlist.
+Cloud metadata probing has provider-specific protocol signals, while
+prompt-following is one of the few observations more specific to an agent than
+to a fixed wordlist.
 
 ## Benchmarks
 

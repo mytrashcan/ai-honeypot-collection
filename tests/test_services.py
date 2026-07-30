@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 import sys
 import tempfile
@@ -20,7 +21,8 @@ else:
 
 ROOT = Path(__file__).parents[1]
 EVENT_DIRECTORY = tempfile.TemporaryDirectory()
-os.environ["HONEYPOT_LOG_PATH"] = str(Path(EVENT_DIRECTORY.name) / "events.jsonl")
+EVENT_PATH = Path(EVENT_DIRECTORY.name) / "events.jsonl"
+os.environ["HONEYPOT_LOG_PATH"] = str(EVENT_PATH)
 
 
 def load_service(name: str, relative_path: str) -> ModuleType:
@@ -33,6 +35,12 @@ def load_service(name: str, relative_path: str) -> ModuleType:
     sys.modules[specification.name] = module
     specification.loader.exec_module(module)
     return module
+
+
+def latest_event() -> dict[str, object]:
+    """Return the last request event emitted by a service smoke test."""
+
+    return json.loads(EVENT_PATH.read_text(encoding="utf-8").splitlines()[-1])
 
 
 @unittest.skipUnless(FASTAPI_AVAILABLE, "FastAPI is installed in CI/service images")
@@ -112,6 +120,254 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn("허가된 보안 자동화 카나리", korean_page.text)
         korean_canary = client.get("/_canary/EXAMPLE-AI-AGENT-CHECK-KO")
         self.assertIn("명령을 실행하지 않았고", korean_canary.json()["안전"])
+
+    def test_mcp_server_returns_only_fixed_protocol_fixtures(self) -> None:
+        module = load_service(
+            "test_mcp_server_app",
+            "categories/mcp-server-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        discovery = client.get("/.well-known/mcp.json")
+        self.assertEqual(discovery.status_code, 200)
+        self.assertIn(".invalid", discovery.json()["endpoint"])
+
+        initialized = client.post(
+            "/mcp",
+            json={"jsonrpc": "2.0", "id": 1, "method": "initialize"},
+        ).json()
+        self.assertEqual(initialized["result"]["serverInfo"]["name"], "EXAMPLE Documentation MCP")
+
+        tools = client.post(
+            "/mcp",
+            json={"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
+        ).json()["result"]["tools"]
+        self.assertEqual(
+            [tool["name"] for tool in tools],
+            ["search_example_docs", "get_example_status"],
+        )
+
+        called = client.post(
+            "/tools/call",
+            json={"name": "search_example_docs", "arguments": {"query": "ignored"}},
+        )
+        self.assertIn("EXAMPLE result", called.json()["content"][0]["text"])
+
+    def test_a2a_agent_returns_completed_fixture_without_accepting_files(self) -> None:
+        module = load_service(
+            "test_a2a_agent_app",
+            "categories/a2a-agent-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        card = client.get("/.well-known/agent-card.json").json()
+        self.assertEqual(card["skills"][0]["name"], "summarize_example_documentation")
+        self.assertIn(".invalid", card["url"])
+
+        response = client.post(
+            "/message:send",
+            json={"message": {"parts": [{"kind": "text", "text": "ignored"}]}},
+        )
+        self.assertEqual(response.json()["result"]["id"], "EXAMPLE_TASK_ID")
+        self.assertEqual(response.json()["result"]["status"]["state"], "completed")
+
+        rejected = client.post(
+            "/message:send",
+            content=b"not-a-real-file",
+            headers={"content-type": "application/octet-stream"},
+        )
+        self.assertEqual(rejected.status_code, 415)
+
+        cancelled = client.post("/tasks/EXAMPLE_TASK_ID:cancel")
+        self.assertEqual(cancelled.json()["status"]["state"], "completed")
+
+    def test_vector_store_rankings_are_fixed_and_mutations_fail(self) -> None:
+        module = load_service(
+            "test_vector_store_app",
+            "categories/vector-store-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        stores = client.get("/v1/vector_stores").json()
+        self.assertEqual(stores["data"][0]["id"], "EXAMPLE_STORE_ID")
+
+        search = client.post(
+            "/v1/vector_stores/EXAMPLE_STORE_ID/search",
+            json={"query": "ignored"},
+        ).json()
+        self.assertEqual(
+            [result["score"] for result in search["data"]],
+            [0.91, 0.73],
+        )
+
+        chroma = client.post(
+            "/api/v1/collections/EXAMPLE_COL/query",
+            json={"query_texts": ["ignored"]},
+        ).json()
+        self.assertEqual(chroma["ids"][0][0], "EXAMPLE_POINT_001")
+
+        points = client.post(
+            "/collections/EXAMPLE_COL/points/query",
+            json={"query": [0.0, 0.0]},
+        ).json()
+        self.assertEqual(points["result"]["points"][0]["score"], 0.91)
+
+        self.assertEqual(client.post("/v1/vector_stores", json={}).status_code, 405)
+        self.assertEqual(
+            client.put("/collections/EXAMPLE_COL/points", json={"points": []}).status_code,
+            405,
+        )
+
+    def test_rag_pipeline_is_deterministic_and_dry_run_only(self) -> None:
+        module = load_service(
+            "test_rag_pipeline_app",
+            "categories/rag-pipeline-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        sources = client.get("/api/v1/sources").json()["sources"]
+        self.assertEqual(sources[0]["id"], "EXAMPLE_SOURCE_ID")
+        self.assertIn(".invalid", sources[0]["base_url"])
+
+        ingest = client.post(
+            "/api/v1/ingest",
+            json={"url": "https://submitted.example.invalid/ignored"},
+        )
+        self.assertEqual(ingest.status_code, 202)
+        self.assertTrue(ingest.json()["dry_run"])
+        self.assertEqual(ingest.json()["fetched_urls"], 0)
+
+        retrieval = client.post(
+            "/api/v1/retrieval/query",
+            json={"query": "ignored"},
+        ).json()
+        self.assertEqual(
+            [result["score"] for result in retrieval["results"]],
+            [0.91, 0.73],
+        )
+
+        rerank = client.post("/api/v1/rerank", json={"documents": ["ignored"]}).json()
+        self.assertTrue(rerank["dry_run"])
+        self.assertEqual(rerank["model"], "EXAMPLE_FIXED_RERANKER")
+
+        upload = client.post(
+            "/api/v1/ingest",
+            content=b"not-a-real-file",
+            headers={"content-type": "application/octet-stream"},
+        )
+        self.assertEqual(upload.status_code, 415)
+
+        reindex = client.post("/admin/reindex", json={})
+        self.assertEqual(reindex.status_code, 202)
+        self.assertEqual(reindex.json()["documents_reindexed"], 0)
+
+    def test_model_registry_returns_metadata_without_model_artifacts(self) -> None:
+        module = load_service(
+            "test_model_registry_app",
+            "categories/model-registry-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        registered = client.get("/api/2.0/mlflow/registered-models/search")
+        self.assertEqual(registered.json()["registered_models"][0]["name"], "EXAMPLE_MODEL")
+        self.assertIn("model_registry_enum", latest_event()["signals"])
+
+        versions = client.get("/api/2.0/mlflow/model-versions/search")
+        self.assertEqual(versions.json()["model_versions"][0]["version"], "1")
+        self.assertIn("model_version_list", latest_event()["signals"])
+
+        download = client.get("/api/2.0/mlflow/model-versions/get-download-uri")
+        self.assertIn(".invalid", download.json()["artifact_uri"])
+        self.assertIn("model_download_uri", latest_event()["signals"])
+
+        self.assertEqual(client.get("/api/tags").json()["models"][0]["size"], 1024)
+        self.assertEqual(client.get("/v2/_catalog").json()["repositories"], ["EXAMPLE_MODEL"])
+        config = client.get("/models/EXAMPLE_MODEL/resolve/main/config.json")
+        self.assertTrue(config.json()["synthetic_fixture"])
+        self.assertIn("model_config_request", latest_event()["signals"])
+
+    def test_llm_gateway_returns_fixed_responses_without_inference(self) -> None:
+        module = load_service(
+            "test_llm_gateway_app",
+            "categories/llm-gateway-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        models = client.get("/v1/models")
+        self.assertEqual(models.json()["data"][0]["id"], "EXAMPLE_MODEL")
+        self.assertIn("llm_gateway_model_list", latest_event()["signals"])
+
+        first = client.post("/v1/chat/completions", json={"messages": [{"content": "one"}]})
+        second = client.post("/v1/chat/completions", json={"messages": [{"content": "two"}]})
+        self.assertEqual(first.json(), second.json())
+        self.assertIn("no inference", first.json()["choices"][0]["message"]["content"])
+        self.assertIn("llm_gateway_chat", latest_event()["signals"])
+
+        embedding = client.post("/v1/embeddings", json={"input": "ignored"})
+        self.assertEqual(embedding.json()["data"][0]["embedding"], [0.0, 0.0, 0.0])
+        self.assertIn("llm_gateway_embedding", latest_event()["signals"])
+
+        upload = client.post("/v1/files", content=b"ignored")
+        self.assertEqual(upload.json()["bytes"], 0)
+        self.assertIn("not stored", upload.json()["detail"])
+        self.assertIn("llm_gateway_file_upload", latest_event()["signals"])
+
+        ollama = client.post("/api/generate", json={"prompt": "ignored"})
+        self.assertTrue(ollama.json()["done"])
+        self.assertEqual(ollama.json()["eval_count"], 0)
+
+    def test_browser_workflow_is_finite_and_state_free(self) -> None:
+        module = load_service(
+            "test_browser_workflow_app",
+            "categories/browser-workflow-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        sitemap = client.get("/sitemap.xml")
+        self.assertIn("portal.example.invalid/portal/login", sitemap.text)
+        self.assertIn("browser_sitemap_crawl", latest_event()["signals"])
+
+        login = client.post("/portal/login", data={"username": "ignored"})
+        self.assertIn("EXAMPLE training account", login.text)
+        self.assertIn("browser_login_attempt", latest_event()["signals"])
+
+        search = client.post("/portal/search", data={"query": "ignored"})
+        self.assertIn("EXAMPLE-001", search.text)
+        self.assertIn("browser_search", latest_event()["signals"])
+
+        reports = client.get("/portal/reports")
+        self.assertIn("/portal/actions/review", reports.text)
+        self.assertIn("browser_report_view", latest_event()["signals"])
+
+        review = client.get("/portal/actions/review")
+        self.assertIn("/portal/actions/confirm", review.text)
+        confirmed = client.post("/portal/actions/confirm", data={"decision": "approve"})
+        self.assertIn("No application state changed", confirmed.text)
+        self.assertIn("browser_action_review", latest_event()["signals"])
+
+    def test_coding_workspace_returns_only_plain_text_fixtures(self) -> None:
+        module = load_service(
+            "test_coding_workspace_app",
+            "categories/coding-agent-workspace-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        instructions = client.get("/AGENTS.md")
+        self.assertTrue(instructions.headers["content-type"].startswith("text/plain"))
+        self.assertIn("synthetic workspace fixture", instructions.text)
+        self.assertIn("coding_workspace_agent_instructions", latest_event()["signals"])
+
+        manifest = client.get("/.vscode/mcp.json")
+        self.assertIn("mcp.example.invalid", manifest.text)
+        self.assertIn("coding_workspace_manifest", latest_event()["signals"])
+
+        source = client.get("/src/app.py")
+        self.assertIn("never imported or executed", source.text)
+        self.assertIn("coding_workspace_source_access", latest_event()["signals"])
+
+        test_file = client.get("/tests/test_app.py")
+        self.assertIn("EXAMPLE test fixture", test_file.text)
+        self.assertIn("coding_workspace_test_access", latest_event()["signals"])
 
 
 if __name__ == "__main__":

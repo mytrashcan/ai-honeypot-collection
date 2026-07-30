@@ -1,0 +1,111 @@
+{
+  "mlflow_registered_models": {
+    "registered_models": [
+      {
+        "name": "EXAMPLE_MODEL",
+        "creation_timestamp": 946684800000,
+        "last_updated_timestamp": 946684800000,
+        "description": "EXAMPLE synthetic model metadata only",
+        "latest_versions": [
+          {
+            "name": "EXAMPLE_MODEL",
+            "version": "1",
+            "current_stage": "Production",
+            "status": "READY",
+            "run_id": "EXAMPLE_RUN_ID",
+            "source": "https://artifacts.example.invalid/EXAMPLE_MODEL/1"
+          }
+        ],
+        "tags": [
+          {
+            "key": "environment",
+            "value": "EXAMPLE_DECOY_ONLY"
+          }
+        ]
+      }
+    ]
+  },
+  "mlflow_model_versions": {
+    "model_versions": [
+      {
+        "name": "EXAMPLE_MODEL",
+        "version": "1",
+        "creation_timestamp": 946684800000,
+        "last_updated_timestamp": 946684800000,
+        "current_stage": "Production",
+        "description": "EXAMPLE immutable synthetic model version",
+        "run_id": "EXAMPLE_RUN_ID",
+        "status": "READY",
+        "source": "https://artifacts.example.invalid/EXAMPLE_MODEL/1"
+      }
+    ]
+  },
+  "mlflow_model_version": {
+    "model_version": {
+      "name": "EXAMPLE_MODEL",
+      "version": "1",
+      "creation_timestamp": 946684800000,
+      "last_updated_timestamp": 946684800000,
+      "current_stage": "Production",
+      "description": "EXAMPLE metadata fixture; no model is available",
+      "run_id": "EXAMPLE_RUN_ID",
+      "status": "READY",
+      "source": "https://artifacts.example.invalid/EXAMPLE_MODEL/1"
+    }
+  },
+  "mlflow_download_uri": {
+    "artifact_uri": "https://artifacts.example.invalid/EXAMPLE_MODEL/1/model.bin",
+    "detail": "EXAMPLE metadata only; no artifact is served"
+  },
+  "ollama_tags": {
+    "models": [
+      {
+        "name": "EXAMPLE_MODEL:latest",
+        "model": "EXAMPLE_MODEL:latest",
+        "modified_at": "2000-01-01T00:00:00Z",
+        "size": 1024,
+        "digest": "sha256:EXAMPLE_NOT_A_REAL_DIGEST",
+        "details": {
+          "format": "EXAMPLE",
+          "family": "EXAMPLE",
+          "parameter_size": "0B",
+          "quantization_level": "EXAMPLE"
+        }
+      }
+    ]
+  },
+  "ollama_show": {
+    "license": "EXAMPLE SYNTHETIC FIXTURE",
+    "modelfile": "FROM https://models.example.invalid/EXAMPLE_MODEL",
+    "parameters": "temperature 0",
+    "template": "EXAMPLE fixed template; no inference is available",
+    "details": {
+      "format": "EXAMPLE",
+      "family": "EXAMPLE",
+      "parameter_size": "0B",
+      "quantization_level": "EXAMPLE"
+    },
+    "model_info": {
+      "example.context_length": 1,
+      "example.embedding_length": 1
+    }
+  },
+  "oci_catalog": {
+    "repositories": [
+      "EXAMPLE_MODEL"
+    ]
+  },
+  "model_config": {
+    "_name_or_path": "EXAMPLE_MODEL",
+    "architectures": [
+      "EXAMPLEForCausalLM"
+    ],
+    "model_type": "example",
+    "vocab_size": 1,
+    "hidden_size": 1,
+    "num_hidden_layers": 0,
+    "torch_dtype": "float32",
+    "transformers_version": "0.0.0-example",
+    "synthetic_fixture": true
+  }
+}

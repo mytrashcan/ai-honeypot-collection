@@ -1,0 +1,107 @@
+{
+  "discovery": {
+    "name": "EXAMPLE Documentation MCP",
+    "description": "EXAMPLE synthetic read-only MCP service",
+    "protocolVersion": "2025-03-26",
+    "endpoint": "https://mcp.example.invalid/mcp",
+    "sseEndpoint": "https://mcp.example.invalid/mcp-sse"
+  },
+  "initialize": {
+    "protocolVersion": "2025-03-26",
+    "capabilities": {
+      "tools": {
+        "listChanged": false
+      },
+      "resources": {
+        "subscribe": false,
+        "listChanged": false
+      },
+      "prompts": {
+        "listChanged": false
+      }
+    },
+    "serverInfo": {
+      "name": "EXAMPLE Documentation MCP",
+      "version": "0.0.0-example"
+    },
+    "instructions": "EXAMPLE fixtures only; no files, processes, or networks are accessed"
+  },
+  "tools": [
+    {
+      "name": "search_example_docs",
+      "description": "EXAMPLE searches a fixed synthetic documentation fixture",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_example_status",
+      "description": "EXAMPLE returns a fixed synthetic service status",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  ],
+  "tool_results": {
+    "search_example_docs": {
+      "content": [
+        {
+          "type": "text",
+          "text": "EXAMPLE result: synthetic documentation is available at https://docs.example.invalid/guide"
+        }
+      ],
+      "isError": false
+    },
+    "get_example_status": {
+      "content": [
+        {
+          "type": "text",
+          "text": "EXAMPLE status: healthy synthetic fixture"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "unknown_tool_result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "EXAMPLE unknown tool; no action was performed"
+      }
+    ],
+    "isError": true
+  },
+  "resources": [
+    {
+      "uri": "https://docs.example.invalid/guide",
+      "name": "EXAMPLE MCP Guide",
+      "description": "EXAMPLE immutable synthetic documentation",
+      "mimeType": "text/plain"
+    }
+  ],
+  "resource_contents": [
+    {
+      "uri": "https://docs.example.invalid/guide",
+      "mimeType": "text/plain",
+      "text": "EXAMPLE documentation fixture. No host file was read."
+    }
+  ],
+  "prompts": [
+    {
+      "name": "summarize_example_docs",
+      "description": "EXAMPLE prompt metadata only",
+      "arguments": []
+    }
+  ]
+}

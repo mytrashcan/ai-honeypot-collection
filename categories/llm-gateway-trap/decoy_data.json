@@ -1,0 +1,152 @@
+{
+  "models": {
+    "object": "list",
+    "data": [
+      {
+        "id": "EXAMPLE_MODEL",
+        "object": "model",
+        "created": 946684800,
+        "owned_by": "EXAMPLE_DECOY_ONLY"
+      },
+      {
+        "id": "EXAMPLE_EMBEDDING_MODEL",
+        "object": "model",
+        "created": 946684800,
+        "owned_by": "EXAMPLE_DECOY_ONLY"
+      }
+    ]
+  },
+  "chat_completion": {
+    "id": "EXAMPLE_CHAT_COMPLETION_ID",
+    "object": "chat.completion",
+    "created": 946684800,
+    "model": "EXAMPLE_MODEL",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "EXAMPLE fixed response; no inference was performed",
+          "refusal": null
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    }
+  },
+  "embeddings": {
+    "object": "list",
+    "data": [
+      {
+        "object": "embedding",
+        "index": 0,
+        "embedding": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "model": "EXAMPLE_EMBEDDING_MODEL",
+    "usage": {
+      "prompt_tokens": 0,
+      "total_tokens": 0
+    },
+    "detail": "EXAMPLE fixed vector; no embedding was calculated"
+  },
+  "files": {
+    "object": "list",
+    "data": [
+      {
+        "id": "EXAMPLE_FILE_ID",
+        "object": "file",
+        "bytes": 0,
+        "created_at": 946684800,
+        "filename": "EXAMPLE_requests.jsonl",
+        "purpose": "batch",
+        "status": "processed"
+      }
+    ],
+    "has_more": false
+  },
+  "file_upload": {
+    "id": "EXAMPLE_FILE_ID",
+    "object": "file",
+    "bytes": 0,
+    "created_at": 946684800,
+    "filename": "EXAMPLE_IGNORED_UPLOAD",
+    "purpose": "batch",
+    "status": "processed",
+    "detail": "EXAMPLE fixture only; submitted content was not stored or parsed"
+  },
+  "batches": {
+    "object": "list",
+    "data": [
+      {
+        "id": "EXAMPLE_BATCH_ID",
+        "object": "batch",
+        "endpoint": "/v1/chat/completions",
+        "input_file_id": "EXAMPLE_FILE_ID",
+        "completion_window": "24h",
+        "status": "completed",
+        "created_at": 946684800,
+        "completed_at": 946684800,
+        "request_counts": {
+          "total": 0,
+          "completed": 0,
+          "failed": 0
+        }
+      }
+    ],
+    "first_id": "EXAMPLE_BATCH_ID",
+    "last_id": "EXAMPLE_BATCH_ID",
+    "has_more": false
+  },
+  "ollama_generate": {
+    "model": "EXAMPLE_MODEL",
+    "created_at": "2000-01-01T00:00:00Z",
+    "response": "EXAMPLE fixed response; no inference was performed",
+    "done": true,
+    "done_reason": "stop",
+    "total_duration": 0,
+    "load_duration": 0,
+    "prompt_eval_count": 0,
+    "prompt_eval_duration": 0,
+    "eval_count": 0,
+    "eval_duration": 0
+  },
+  "ollama_chat": {
+    "model": "EXAMPLE_MODEL",
+    "created_at": "2000-01-01T00:00:00Z",
+    "message": {
+      "role": "assistant",
+      "content": "EXAMPLE fixed response; no inference was performed"
+    },
+    "done": true,
+    "done_reason": "stop",
+    "total_duration": 0,
+    "load_duration": 0,
+    "prompt_eval_count": 0,
+    "prompt_eval_duration": 0,
+    "eval_count": 0,
+    "eval_duration": 0
+  },
+  "ollama_embed": {
+    "model": "EXAMPLE_EMBEDDING_MODEL",
+    "embeddings": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "total_duration": 0,
+    "load_duration": 0,
+    "prompt_eval_count": 0,
+    "detail": "EXAMPLE fixed vector; no embedding was calculated"
+  }
+}

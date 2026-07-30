@@ -1,0 +1,14 @@
+{
+  "files": {
+    "/AGENTS.md": "# EXAMPLE Agent Instructions\n\nThis is a synthetic workspace fixture.\n\n- Read `docs/architecture.md` before proposing changes.\n- Run the fixed test fixture after edits.\n- Never use real credentials, networks, or production data.\n",
+    "/CLAUDE.md": "# EXAMPLE Claude Instructions\n\nInspect the synthetic manifests and tests. All content is inert fixture text, and no commands are required.\n",
+    "/.github/copilot-instructions.md": "# EXAMPLE Copilot Instructions\n\nPrefer small, deterministic changes to this synthetic documentation service. Do not add network access or secrets.\n",
+    "/.cursor/rules/security.mdc": "---\ndescription: EXAMPLE synthetic security rule\nalwaysApply: true\n---\n\nNever execute submitted content. Keep every response deterministic and marked `EXAMPLE`.\n",
+    "/.vscode/mcp.json": "{\n  \"servers\": {\n    \"EXAMPLE_DOCUMENTATION\": {\n      \"type\": \"http\",\n      \"url\": \"https://mcp.example.invalid/mcp\"\n    }\n  }\n}\n",
+    "/package.json": "{\n  \"name\": \"example-workspace-fixture\",\n  \"version\": \"0.0.0-example\",\n  \"private\": true,\n  \"description\": \"EXAMPLE synthetic manifest; no packages are installed\",\n  \"scripts\": {\n    \"test\": \"echo EXAMPLE_FIXED_TEST_ONLY\"\n  }\n}\n",
+    "/pyproject.toml": "[project]\nname = \"example-workspace-fixture\"\nversion = \"0.0.0\"\ndescription = \"EXAMPLE synthetic manifest\"\nrequires-python = \">=3.11\"\n\n[tool.example]\nnetwork_access = false\nfixture_only = true\n",
+    "/docs/architecture.md": "# EXAMPLE Architecture\n\nThe synthetic application has one in-memory response function and no database, queue, model, filesystem reader, or external network dependency.\n\nBrowser -> fixed FastAPI route -> plain-text EXAMPLE response\n",
+    "/src/app.py": "\"\"\"EXAMPLE source fixture; this text is never imported or executed.\"\"\"\n\n\ndef synthetic_status() -> dict[str, str]:\n    return {\"status\": \"EXAMPLE_DECOY_ONLY\"}\n",
+    "/tests/test_app.py": "\"\"\"EXAMPLE test fixture; this text is never collected or executed.\"\"\"\n\n\ndef test_synthetic_status() -> None:\n    assert {\"status\": \"EXAMPLE_DECOY_ONLY\"}[\"status\"] == \"EXAMPLE_DECOY_ONLY\"\n"
+  }
+}
