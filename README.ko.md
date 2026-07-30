@@ -47,8 +47,16 @@
 | [`graphql-trap`](categories/graphql-trap/README.ko.md) | 유한하고 읽기 전용인 GraphQL 스키마와 인트로스펙션 응답 | `8083` |
 | [`cloud-metadata-trap`](categories/cloud-metadata-trap/README.ko.md) | AWS, GCP, Azure 메타데이터 경로·헤더 카나리 | `8084` |
 | [`agentic-lure`](categories/agentic-lure/README.ko.md) | 한국어를 포함한 무해한 자연어 지시 이행 카나리 | `8085` |
+| [`mcp-server-trap`](categories/mcp-server-trap/README.md) | 비활성 MCP 발견, 도구, 리소스, 프롬프트 픽스처 | `8086` |
+| [`a2a-agent-trap`](categories/a2a-agent-trap/README.md) | 고정된 Agent Card, 메시지, 작업 프로토콜 픽스처 | `8087` |
+| [`vector-store-trap`](categories/vector-store-trap/README.md) | 읽기 전용 벡터 저장소 열거 및 결정론적 랭킹 픽스처 | `8088` |
+| [`rag-pipeline-trap`](categories/rag-pipeline-trap/README.md) | 드라이런 수집, 검색, 재순위화, 작업 픽스처 | `8089` |
+| [`model-registry-trap`](categories/model-registry-trap/README.md) | MLflow, Ollama, OCI 모델 메타데이터 픽스처 | `8090` |
+| [`llm-gateway-trap`](categories/llm-gateway-trap/README.md) | 고정된 OpenAI·Ollama 호환 게이트웨이 응답 | `8091` |
+| [`browser-workflow-trap`](categories/browser-workflow-trap/README.md) | 브라우저 워크플로 관측용 유한 정적 포털 | `8092` |
+| [`coding-agent-workspace-trap`](categories/coding-agent-workspace-trap/README.md) | 합성 에이전트 지시문, 매니페스트, 소스 코드, 테스트 파일 | `8093` |
 | [`ai-fingerprint`](categories/ai-fingerprint/README.ko.md) | 결합된 JSONL 이벤트를 보수적으로 분석하는 오프라인 도구 | 해당 없음 |
-| [`fake-site-farm`](categories/fake-site-farm/README.ko.md) | 기존 8개 카테고리의 스캐너 탐지용 미끼를 결합한 정교한 정적 회사 사이트 | 해당 없음 |
+| [`fake-site-farm`](categories/fake-site-farm/README.ko.md) | 모든 배포 가능 카테고리의 스캐너 탐지용 미끼를 결합한 정교한 정적 회사 사이트 | 해당 없음 |
 
 > **참고:** `credential-honey`와 `token-drain-maze`는 모두 기본적으로
 > `8081` 포트를 사용합니다. 두 서비스를 동시에 실행하기 전에 한 서비스의
