@@ -53,6 +53,7 @@ limitations behind that model.
 | [`llm-gateway-trap`](categories/llm-gateway-trap/) | Fixed OpenAI- and Ollama-compatible gateway responses | `8091` |
 | [`browser-workflow-trap`](categories/browser-workflow-trap/) | Finite static portal for browser-workflow observation | `8092` |
 | [`coding-agent-workspace-trap`](categories/coding-agent-workspace-trap/) | Synthetic agent instructions, manifests, source, and tests | `8093` |
+| [`reverse-jailbreak-trap`](categories/reverse-jailbreak-trap/) | Synthetic safety-interlock stop prompts for distinguishing agent behavior from blind crawling | `8094` |
 | [`ai-fingerprint`](categories/ai-fingerprint/) | Offline, conservative analysis of combined JSONL events | n/a |
 | [`fake-site-farm`](categories/fake-site-farm/) | Polished static company site combining multiple scanner-visible lures | n/a |
 
