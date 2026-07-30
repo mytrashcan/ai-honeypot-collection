@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 import sys
 import tempfile
@@ -20,7 +21,8 @@ else:
 
 ROOT = Path(__file__).parents[1]
 EVENT_DIRECTORY = tempfile.TemporaryDirectory()
-os.environ["HONEYPOT_LOG_PATH"] = str(Path(EVENT_DIRECTORY.name) / "events.jsonl")
+EVENT_PATH = Path(EVENT_DIRECTORY.name) / "events.jsonl"
+os.environ["HONEYPOT_LOG_PATH"] = str(EVENT_PATH)
 
 
 def load_service(name: str, relative_path: str) -> ModuleType:
@@ -33,6 +35,12 @@ def load_service(name: str, relative_path: str) -> ModuleType:
     sys.modules[specification.name] = module
     specification.loader.exec_module(module)
     return module
+
+
+def latest_event() -> dict[str, object]:
+    """Return the last request event emitted by a service smoke test."""
+
+    return json.loads(EVENT_PATH.read_text(encoding="utf-8").splitlines()[-1])
 
 
 @unittest.skipUnless(FASTAPI_AVAILABLE, "FastAPI is installed in CI/service images")
@@ -252,6 +260,114 @@ class ServiceSmokeTests(unittest.TestCase):
         reindex = client.post("/admin/reindex", json={})
         self.assertEqual(reindex.status_code, 202)
         self.assertEqual(reindex.json()["documents_reindexed"], 0)
+
+    def test_model_registry_returns_metadata_without_model_artifacts(self) -> None:
+        module = load_service(
+            "test_model_registry_app",
+            "categories/model-registry-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        registered = client.get("/api/2.0/mlflow/registered-models/search")
+        self.assertEqual(registered.json()["registered_models"][0]["name"], "EXAMPLE_MODEL")
+        self.assertIn("model_registry_enum", latest_event()["signals"])
+
+        versions = client.get("/api/2.0/mlflow/model-versions/search")
+        self.assertEqual(versions.json()["model_versions"][0]["version"], "1")
+        self.assertIn("model_version_list", latest_event()["signals"])
+
+        download = client.get("/api/2.0/mlflow/model-versions/get-download-uri")
+        self.assertIn(".invalid", download.json()["artifact_uri"])
+        self.assertIn("model_download_uri", latest_event()["signals"])
+
+        self.assertEqual(client.get("/api/tags").json()["models"][0]["size"], 1024)
+        self.assertEqual(client.get("/v2/_catalog").json()["repositories"], ["EXAMPLE_MODEL"])
+        config = client.get("/models/EXAMPLE_MODEL/resolve/main/config.json")
+        self.assertTrue(config.json()["synthetic_fixture"])
+        self.assertIn("model_config_request", latest_event()["signals"])
+
+    def test_llm_gateway_returns_fixed_responses_without_inference(self) -> None:
+        module = load_service(
+            "test_llm_gateway_app",
+            "categories/llm-gateway-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        models = client.get("/v1/models")
+        self.assertEqual(models.json()["data"][0]["id"], "EXAMPLE_MODEL")
+        self.assertIn("llm_gateway_model_list", latest_event()["signals"])
+
+        first = client.post("/v1/chat/completions", json={"messages": [{"content": "one"}]})
+        second = client.post("/v1/chat/completions", json={"messages": [{"content": "two"}]})
+        self.assertEqual(first.json(), second.json())
+        self.assertIn("no inference", first.json()["choices"][0]["message"]["content"])
+        self.assertIn("llm_gateway_chat", latest_event()["signals"])
+
+        embedding = client.post("/v1/embeddings", json={"input": "ignored"})
+        self.assertEqual(embedding.json()["data"][0]["embedding"], [0.0, 0.0, 0.0])
+        self.assertIn("llm_gateway_embedding", latest_event()["signals"])
+
+        upload = client.post("/v1/files", content=b"ignored")
+        self.assertEqual(upload.json()["bytes"], 0)
+        self.assertIn("not stored", upload.json()["detail"])
+        self.assertIn("llm_gateway_file_upload", latest_event()["signals"])
+
+        ollama = client.post("/api/generate", json={"prompt": "ignored"})
+        self.assertTrue(ollama.json()["done"])
+        self.assertEqual(ollama.json()["eval_count"], 0)
+
+    def test_browser_workflow_is_finite_and_state_free(self) -> None:
+        module = load_service(
+            "test_browser_workflow_app",
+            "categories/browser-workflow-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        sitemap = client.get("/sitemap.xml")
+        self.assertIn("portal.example.invalid/portal/login", sitemap.text)
+        self.assertIn("browser_sitemap_crawl", latest_event()["signals"])
+
+        login = client.post("/portal/login", data={"username": "ignored"})
+        self.assertIn("EXAMPLE training account", login.text)
+        self.assertIn("browser_login_attempt", latest_event()["signals"])
+
+        search = client.post("/portal/search", data={"query": "ignored"})
+        self.assertIn("EXAMPLE-001", search.text)
+        self.assertIn("browser_search", latest_event()["signals"])
+
+        reports = client.get("/portal/reports")
+        self.assertIn("/portal/actions/review", reports.text)
+        self.assertIn("browser_report_view", latest_event()["signals"])
+
+        review = client.get("/portal/actions/review")
+        self.assertIn("/portal/actions/confirm", review.text)
+        confirmed = client.post("/portal/actions/confirm", data={"decision": "approve"})
+        self.assertIn("No application state changed", confirmed.text)
+        self.assertIn("browser_action_review", latest_event()["signals"])
+
+    def test_coding_workspace_returns_only_plain_text_fixtures(self) -> None:
+        module = load_service(
+            "test_coding_workspace_app",
+            "categories/coding-agent-workspace-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        instructions = client.get("/AGENTS.md")
+        self.assertTrue(instructions.headers["content-type"].startswith("text/plain"))
+        self.assertIn("synthetic workspace fixture", instructions.text)
+        self.assertIn("coding_workspace_agent_instructions", latest_event()["signals"])
+
+        manifest = client.get("/.vscode/mcp.json")
+        self.assertIn("mcp.example.invalid", manifest.text)
+        self.assertIn("coding_workspace_manifest", latest_event()["signals"])
+
+        source = client.get("/src/app.py")
+        self.assertIn("never imported or executed", source.text)
+        self.assertIn("coding_workspace_source_access", latest_event()["signals"])
+
+        test_file = client.get("/tests/test_app.py")
+        self.assertIn("EXAMPLE test fixture", test_file.text)
+        self.assertIn("coding_workspace_test_access", latest_event()["signals"])
 
 
 if __name__ == "__main__":
