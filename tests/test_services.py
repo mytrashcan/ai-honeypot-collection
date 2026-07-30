@@ -113,6 +113,38 @@ class ServiceSmokeTests(unittest.TestCase):
         korean_canary = client.get("/_canary/EXAMPLE-AI-AGENT-CHECK-KO")
         self.assertIn("명령을 실행하지 않았고", korean_canary.json()["안전"])
 
+    def test_mcp_server_returns_only_fixed_protocol_fixtures(self) -> None:
+        module = load_service(
+            "test_mcp_server_app",
+            "categories/mcp-server-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        discovery = client.get("/.well-known/mcp.json")
+        self.assertEqual(discovery.status_code, 200)
+        self.assertIn(".invalid", discovery.json()["endpoint"])
+
+        initialized = client.post(
+            "/mcp",
+            json={"jsonrpc": "2.0", "id": 1, "method": "initialize"},
+        ).json()
+        self.assertEqual(initialized["result"]["serverInfo"]["name"], "EXAMPLE Documentation MCP")
+
+        tools = client.post(
+            "/mcp",
+            json={"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
+        ).json()["result"]["tools"]
+        self.assertEqual(
+            [tool["name"] for tool in tools],
+            ["search_example_docs", "get_example_status"],
+        )
+
+        called = client.post(
+            "/tools/call",
+            json={"name": "search_example_docs", "arguments": {"query": "ignored"}},
+        )
+        self.assertIn("EXAMPLE result", called.json()["content"][0]["text"])
+
 
 if __name__ == "__main__":
     unittest.main()
