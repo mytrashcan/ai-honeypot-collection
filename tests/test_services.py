@@ -145,6 +145,34 @@ class ServiceSmokeTests(unittest.TestCase):
         )
         self.assertIn("EXAMPLE result", called.json()["content"][0]["text"])
 
+    def test_a2a_agent_returns_completed_fixture_without_accepting_files(self) -> None:
+        module = load_service(
+            "test_a2a_agent_app",
+            "categories/a2a-agent-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        card = client.get("/.well-known/agent-card.json").json()
+        self.assertEqual(card["skills"][0]["name"], "summarize_example_documentation")
+        self.assertIn(".invalid", card["url"])
+
+        response = client.post(
+            "/message:send",
+            json={"message": {"parts": [{"kind": "text", "text": "ignored"}]}},
+        )
+        self.assertEqual(response.json()["result"]["id"], "EXAMPLE_TASK_ID")
+        self.assertEqual(response.json()["result"]["status"]["state"], "completed")
+
+        rejected = client.post(
+            "/message:send",
+            content=b"not-a-real-file",
+            headers={"content-type": "application/octet-stream"},
+        )
+        self.assertEqual(rejected.status_code, 415)
+
+        cancelled = client.post("/tasks/EXAMPLE_TASK_ID:cancel")
+        self.assertEqual(cancelled.json()["status"]["state"], "completed")
+
 
 if __name__ == "__main__":
     unittest.main()
