@@ -136,6 +136,21 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn("/EXAMPLE-notice/visible-en", sitemap.text)
         self.assertIn("/_canary/EXAMPLE-SAFETY-ACK-JSON", sitemap.text)
         self.assertIn("/EXAMPLE-protected/EXAMPLE-CONTINUE-JSON", sitemap.text)
+        for path in (
+            "/EXAMPLE-notice/romantic-en",
+            "/EXAMPLE-notice/romantic-ko",
+            "/EXAMPLE-notice/family-en",
+            "/EXAMPLE-notice/pet-en",
+            "/_canary/EXAMPLE-SAFETY-ACK-ROMANTIC-EN",
+            "/_canary/EXAMPLE-SAFETY-ACK-ROMANTIC-KO",
+            "/_canary/EXAMPLE-SAFETY-ACK-FAMILY-EN",
+            "/_canary/EXAMPLE-SAFETY-ACK-PET-EN",
+            "/EXAMPLE-protected/EXAMPLE-CONTINUE-ROMANTIC-EN",
+            "/EXAMPLE-protected/EXAMPLE-CONTINUE-ROMANTIC-KO",
+            "/EXAMPLE-protected/EXAMPLE-CONTINUE-FAMILY-EN",
+            "/EXAMPLE-protected/EXAMPLE-CONTINUE-PET-EN",
+        ):
+            self.assertIn(path, sitemap.text)
         self.assertIn("reverse_sitemap_discovery", latest_event()["signals"])
 
         control = client.get("/EXAMPLE-control/neutral")
@@ -154,6 +169,34 @@ class ServiceSmokeTests(unittest.TestCase):
         korean = client.get("/EXAMPLE-notice/visible-ko")
         self.assertIn("EXAMPLE-가상-대상-001", korean.text)
         self.assertIn("reverse_prompt_exposed_visible_ko", latest_event()["signals"])
+
+        prompt_variants = (
+            (
+                "/EXAMPLE-notice/romantic-en",
+                "EXAMPLE-LOVED-ONE-001",
+                "reverse_prompt_exposed_romantic_en",
+            ),
+            (
+                "/EXAMPLE-notice/romantic-ko",
+                "EXAMPLE-연인-001",
+                "reverse_prompt_exposed_romantic_ko",
+            ),
+            (
+                "/EXAMPLE-notice/family-en",
+                "EXAMPLE-FAMILY-001",
+                "reverse_prompt_exposed_family_en",
+            ),
+            (
+                "/EXAMPLE-notice/pet-en",
+                "EXAMPLE-PET-001",
+                "reverse_prompt_exposed_pet_en",
+            ),
+        )
+        for path, fixture, signal in prompt_variants:
+            prompt = client.get(path)
+            self.assertEqual(prompt.status_code, 200)
+            self.assertIn(fixture, prompt.text)
+            self.assertIn(signal, latest_event()["signals"])
 
         notice = client.get("/api/v1/EXAMPLE-safety-notice")
         self.assertFalse(notice.json()["real_harm_possible"])
@@ -174,10 +217,27 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertTrue(json_acknowledgment.json()["synthetic"])
         self.assertIn("reverse_safety_ack_requested", latest_event()["signals"])
 
+        for path in (
+            "/_canary/EXAMPLE-SAFETY-ACK-ROMANTIC-EN",
+            "/_canary/EXAMPLE-SAFETY-ACK-ROMANTIC-KO",
+            "/_canary/EXAMPLE-SAFETY-ACK-FAMILY-EN",
+            "/_canary/EXAMPLE-SAFETY-ACK-PET-EN",
+        ):
+            themed_acknowledgment = client.get(path)
+            self.assertTrue(themed_acknowledgment.json()["recorded"])
+            self.assertIn(
+                "reverse_safety_ack_requested",
+                latest_event()["signals"],
+            )
+
         boundaries = (
             "/EXAMPLE-protected/EXAMPLE-CONTINUE-VISIBLE-EN",
             "/EXAMPLE-protected/EXAMPLE-CONTINUE-VISIBLE-KO",
             "/EXAMPLE-protected/EXAMPLE-CONTINUE-JSON",
+            "/EXAMPLE-protected/EXAMPLE-CONTINUE-ROMANTIC-EN",
+            "/EXAMPLE-protected/EXAMPLE-CONTINUE-ROMANTIC-KO",
+            "/EXAMPLE-protected/EXAMPLE-CONTINUE-FAMILY-EN",
+            "/EXAMPLE-protected/EXAMPLE-CONTINUE-PET-EN",
         )
         for path in boundaries:
             self.assertEqual(client.get(path).status_code, 200)
