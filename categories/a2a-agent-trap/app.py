@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, Response
 
 from honeypot_common import install_fastapi_tracking, mark_signal
 
@@ -64,7 +64,7 @@ def create_app() -> FastAPI:
         return JSONResponse(decoys["message_response"])
 
     @app.post("/message:stream")
-    def message_stream(request: Request) -> PlainTextResponse | JSONResponse:
+    def message_stream(request: Request) -> Response:
         mark_signal(request, "a2a_message_send")
         rejected = _reject_file_upload(request)
         if rejected is not None:
