@@ -16,11 +16,11 @@ false-positive risk.
 
 | Endpoint | Purpose | Port |
 | --- | --- | --- |
-| `/v1/traces` (POST) | OTLP trace ingest | 8098 |
-| `/v1/metrics` (POST) | OTLP metric ingest | 8098 |
-| `/v1/logs` (POST) | OTLP log ingest | 8098 |
-| `/otel/v1/traces` (GET) | Collector probe | 8098 |
-| `/` | Surface enumeration | 8098 |
+| `/v1/traces` (POST) | OTLP trace ingest | 8099 |
+| `/v1/metrics` (POST) | OTLP metric ingest | 8099 |
+| `/v1/logs` (POST) | OTLP log ingest | 8099 |
+| `/otel/v1/traces` (GET) | Collector probe | 8099 |
+| `/` | Surface enumeration | 8099 |
 
 ## Detection signals
 
