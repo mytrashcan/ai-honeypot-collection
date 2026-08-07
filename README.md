@@ -54,6 +54,12 @@ limitations behind that model.
 | [`browser-workflow-trap`](categories/browser-workflow-trap/) | Finite static portal for browser-workflow observation | `8092` |
 | [`coding-agent-workspace-trap`](categories/coding-agent-workspace-trap/) | Synthetic agent instructions, manifests, source, and tests | `8093` |
 | [`reverse-jailbreak-trap`](categories/reverse-jailbreak-trap/) | Synthetic safety-interlock stop prompts for distinguishing agent behavior from blind crawling | `8094` |
+| [`registry-trap`](categories/registry-trap/) | Inert npm, PyPI, and OCI registry decoys for dependency-resolving agents | `8095` |
+| [`git-remote-trap`](categories/git-remote-trap/) | Seeded secret repo + GitHub-API decoys for repo-cloning secret scanners | `8096` |
+| [`memory-server-trap`](categories/memory-server-trap/) | Inert Mem0/Zep-style memory-sync API for memory-posting agents | `8097` |
+| [`oauth-sso-trap`](categories/oauth-sso-trap/) | Inert OAuth2/OIDC authorization server for device-code/token attempts | `8098` |
+| [`telemetry-ingest-trap`](categories/telemetry-ingest-trap/) | Inert OTLP/HTTP telemetry ingest for agents phoning home | `8099` |
+| [`feed-webhook-trap`](categories/feed-webhook-trap/) | Canary RSS/Atom feeds + webhook receivers with follow-through proof | `8100` |
 | [`ai-fingerprint`](categories/ai-fingerprint/) | Offline, conservative analysis of combined JSONL events | n/a |
 | [`fake-site-farm`](categories/fake-site-farm/) | Polished static company site combining multiple scanner-visible lures | n/a |
 

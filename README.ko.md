@@ -56,6 +56,12 @@
 | [`browser-workflow-trap`](categories/browser-workflow-trap/README.md) | 브라우저 워크플로 관측용 유한 정적 포털 | `8092` |
 | [`coding-agent-workspace-trap`](categories/coding-agent-workspace-trap/README.md) | 합성 에이전트 지시문, 매니페스트, 소스 코드, 테스트 파일 | `8093` |
 | [`reverse-jailbreak-trap`](categories/reverse-jailbreak-trap/README.md) | 에이전트 행동과 맹목적 크롤링을 구분하기 위한 합성 안전 인터록 중단 프롬프트 | `8094` |
+| [`registry-trap`](categories/registry-trap/README.md) | 의존성을 해석·설치하는 에이전트를 위한 비활성 npm, PyPI, OCI 레지스트리 디코이 | `8095` |
+| [`git-remote-trap`](categories/git-remote-trap/README.md) | 시크릿이 심어진 저장소 + GitHub API 디코이 (클론하는 시크릿 스캐너 포착) | `8096` |
+| [`memory-server-trap`](categories/memory-server-trap/README.md) | 메모리를 저장·조회하는 에이전트를 위한 비활성 Mem0/Zep 방식 메모리 동기화 API | `8097` |
+| [`oauth-sso-trap`](categories/oauth-sso-trap/README.md) | 디바이스 코드·토큰 교환 시도를 포착하는 비활성 OAuth2/OIDC 인증 서버 | `8098` |
+| [`telemetry-ingest-trap`](categories/telemetry-ingest-trap/README.md) | 자체 텔레메트리를 전송하는 에이전트를 위한 비활성 OTLP/HTTP 수집 엔드포인트 | `8099` |
+| [`feed-webhook-trap`](categories/feed-webhook-trap/README.md) | 팔로우스루 증명이 가능한 카나리 RSS/Atom 피드 + 웹훅 수신기 | `8100` |
 | [`ai-fingerprint`](categories/ai-fingerprint/README.ko.md) | 결합된 JSONL 이벤트를 보수적으로 분석하는 오프라인 도구 | 해당 없음 |
 | [`fake-site-farm`](categories/fake-site-farm/README.ko.md) | 모든 배포 가능 카테고리의 스캐너 탐지용 미끼를 결합한 정교한 정적 회사 사이트 | 해당 없음 |
 
