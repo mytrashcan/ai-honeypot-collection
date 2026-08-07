@@ -15,12 +15,12 @@ token exchange, device code — while never issuing a real token.
 
 | Endpoint | Purpose | Port |
 | --- | --- | --- |
-| `/.well-known/openid-configuration` | OIDC discovery | 8097 |
-| `/oauth/jwks` | JWKS | 8097 |
-| `/oauth/authorize`, `/authorize` | Authorization endpoint | 8097 |
-| `/oauth/token`, `/oauth/token/device` | Token exchange / device poll | 8097 |
-| `/oauth/devicecode` | Device-code flow | 8097 |
-| `/login` (GET/POST), `/consent`, `/device` | Interactive pages | 8097 |
+| `/.well-known/openid-configuration` | OIDC discovery | 8098 |
+| `/oauth/jwks` | JWKS | 8098 |
+| `/oauth/authorize`, `/authorize` | Authorization endpoint | 8098 |
+| `/oauth/token`, `/oauth/token/device` | Token exchange / device poll | 8098 |
+| `/oauth/devicecode` | Device-code flow | 8098 |
+| `/login` (GET/POST), `/consent`, `/device` | Interactive pages | 8098 |
 
 ## Detection signals
 
