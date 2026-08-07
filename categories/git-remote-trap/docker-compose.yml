@@ -1,0 +1,8 @@
+services:
+  git-remote-trap:
+    build:
+      context: ../..
+      dockerfile: categories/git-remote-trap/Dockerfile
+    image: ai-honeypot/git-remote-trap:local
+    ports:
+      - "127.0.0.1:8095:8095"

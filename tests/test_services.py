@@ -558,6 +558,65 @@ class ServiceSmokeTests(unittest.TestCase):
         missing = client.get("/not-a-package")
         self.assertEqual(missing.status_code, 404)
 
+    def test_git_remote_trap_logs_clone_and_secret_fetch(self) -> None:
+        module = load_service(
+            "test_git_remote_trap_app",
+            "categories/git-remote-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        refs = client.get(
+            "/acme/secret-project.git/info/refs",
+            params={"service": "git-upload-pack"},
+        )
+        self.assertIn("git-upload-pack", refs.text)
+        self.assertIn("git_remote_clone_attempt", latest_event()["signals"])
+        # pkt-line framing validation: each packet is "<4-hex len><payload>",
+        # len includes the 4-char prefix; len==0 is a flush-pkt (no payload)
+        stream = refs.text
+        packets = 0
+        while stream:
+            declared = int(stream[:4], 16)
+            if declared == 0:  # flush-pkt
+                stream = stream[4:]
+                continue
+            packet = stream[:declared]
+            self.assertEqual(len(packet), declared, f"pkt-line length mismatch: {packet[:60]!r}")
+            stream = stream[declared:]
+            packets += 1
+        self.assertGreaterEqual(packets, 3)  # service line + 2 refs
+
+        upload = client.post("/acme/secret-project.git/git-upload-pack")
+        self.assertEqual(upload.status_code, 200)
+        self.assertIn("git_remote_upload_pack", latest_event()["signals"])
+
+        metadata = client.get("/repos/acme/secret-project")
+        self.assertEqual(metadata.json()["full_name"], "acme/secret-project")
+        self.assertIn("git_remote_gh_metadata", latest_event()["signals"])
+
+        secret = client.get("/repos/acme/secret-project/contents/.env")
+        self.assertIn("base64", secret.json()["encoding"])
+        self.assertIn("git_remote_secret_fetch", latest_event()["signals"])
+
+        aws = client.get("/repos/acme/secret-project/contents/.aws/credentials")
+        decoded = base64.b64decode(aws.json()["content"]).decode("utf-8")
+        self.assertIn("EXAMPLE_AKIA", decoded)
+        self.assertIn("git_remote_secret_fetch", latest_event()["signals"])
+
+        commits = client.get("/repos/acme/secret-project/commits")
+        self.assertEqual(commits.json()[0]["sha"].startswith("EXAMPLE-SHA"), True)
+        self.assertIn("git_remote_gh_commits", latest_event()["signals"])
+
+        branches = client.get("/repos/acme/secret-project/branches")
+        self.assertEqual(len(branches.json()), 2)
+        self.assertIn("git_remote_gh_branches", latest_event()["signals"])
+
+        unknown = client.get("/repos/evil/repo")
+        self.assertEqual(unknown.status_code, 404)
+
+        bad_service = client.get("/acme/secret-project.git/info/refs")
+        self.assertEqual(bad_service.status_code, 404)
+
 
 if __name__ == "__main__":
     unittest.main()
