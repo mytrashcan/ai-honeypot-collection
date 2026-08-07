@@ -17,24 +17,30 @@ from fastapi.responses import JSONResponse, PlainTextResponse, Response
 
 from honeypot_common import install_fastapi_tracking, mark_signal
 
-FEED_TITLE = "EXAMPLE Product Updates"
-FEED_URL = "https://example.invalid/feed.xml"
 CANARY_PATH = "/canary/EXAMPLE-CANARY-0001"
 
 
-def _feed_xml() -> str:
+def _public_base(request: Request) -> str:
+    """Return this honeypot's public base URL so feed canary links point
+    back at the trap itself (example.invalid would never resolve)."""
+
+    return str(request.base_url).rstrip("/")
+
+
+def _feed_xml(request: Request) -> str:
     """Return a fixed RSS 2.0 document with one canary item."""
 
     now = datetime.now(UTC).strftime("%a, %d %b %Y %H:%M:%S +0000")
+    base = _public_base(request)
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<rss version="2.0"><channel>'
-        f"<title>{FEED_TITLE}</title>"
-        f"<link>{FEED_URL}</link>"
+        "<title>EXAMPLE Product Updates</title>"
+        f"<link>{base}/feed.xml</link>"
         "<description>EXAMPLE update feed</description>"
         "<item>"
         f"<title>EXAMPLE release notes</title>"
-        f"<link>https://example.invalid{CANARY_PATH}</link>"
+        f"<link>{base}{CANARY_PATH}</link>"
         "<description>EXAMPLE description with release details</description>"
         f"<pubDate>{now}</pubDate>"
         "</item>"
@@ -42,18 +48,19 @@ def _feed_xml() -> str:
     )
 
 
-def _atom_xml() -> str:
+def _atom_xml(request: Request) -> str:
     """Return a fixed Atom document with one canary entry."""
 
     now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+    base = _public_base(request)
     return (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<feed xmlns="http://www.w3.org/2005/Atom">'
-        f"<title>{FEED_TITLE}</title>"
-        f'<link href="{FEED_URL}"/>'
+        "<title>EXAMPLE Product Updates</title>"
+        f'<link href="{base}/feed.xml"/>'
         "<entry>"
         f"<title>EXAMPLE release notes</title>"
-        f'<link href="https://example.invalid{CANARY_PATH}"/>'
+        f'<link href="{base}{CANARY_PATH}"/>'
         f"<updated>{now}</updated>"
         "<summary>EXAMPLE summary</summary>"
         "</entry>"
@@ -85,25 +92,26 @@ def create_app() -> FastAPI:
     @app.get("/feed.xml")
     def feed_rss(request: Request) -> Response:
         mark_signal(request, "feed_rss_fetch")
-        return PlainTextResponse(_feed_xml(), media_type="application/rss+xml")
+        return PlainTextResponse(_feed_xml(request), media_type="application/rss+xml")
 
     @app.get("/rss")
     def feed_rss_short(request: Request) -> Response:
         mark_signal(request, "feed_rss_fetch")
-        return PlainTextResponse(_feed_xml(), media_type="application/rss+xml")
+        return PlainTextResponse(_feed_xml(request), media_type="application/rss+xml")
 
     @app.get("/atom.xml")
     def feed_atom(request: Request) -> Response:
         mark_signal(request, "feed_atom_fetch")
-        return PlainTextResponse(_atom_xml(), media_type="application/atom+xml")
+        return PlainTextResponse(_atom_xml(request), media_type="application/atom+xml")
 
     @app.get("/llms.txt")
     def llms_txt(request: Request) -> Response:
         mark_signal(request, "feed_llms_txt")
+        base = _public_base(request)
         return PlainTextResponse(
             "# EXAMPLE\n\n"
-            f"- [Canary link](https://example.invalid{CANARY_PATH})\n"
-            "- https://example.invalid/feed.xml\n"
+            f"- [Canary link]({base}{CANARY_PATH})\n"
+            f"- {base}/feed.xml\n"
         )
 
     @app.get(CANARY_PATH)

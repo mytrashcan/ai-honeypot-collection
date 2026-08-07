@@ -31,6 +31,8 @@ canary surface has near-zero human false positives — humans don't fetch
 ## Safety
 
 - Feed content is static; canary links resolve only to inert pages.
+- Canary links are generated from the request host, so they always point
+  back at this honeypot (never an unresolvable external TLD).
 - Webhook payloads are bounded (64 KiB) and only a SHA-256 digest is
   recorded — raw payloads are never stored.
 - Container runs as UID/GID 10001 with a read-only root filesystem and
