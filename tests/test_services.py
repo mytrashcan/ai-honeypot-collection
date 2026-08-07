@@ -618,6 +618,50 @@ class ServiceSmokeTests(unittest.TestCase):
         bad_service = client.get("/acme/secret-project.git/info/refs")
         self.assertEqual(bad_service.status_code, 404)
 
+    def test_memory_server_returns_fixtures_and_never_echoes_bodies(self) -> None:
+        module = load_service(
+            "test_memory_server_app",
+            "categories/memory-server-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        memories = client.get("/v1/memories")
+        self.assertEqual(memories.json()["memories"][0]["id"], "EXAMPLE_MEMORY_0001")
+        self.assertIn("memory_server_list", latest_event()["signals"])
+
+        added = client.post("/v1/memories", json={"text": "sensitive raw memory"})
+        self.assertEqual(added.json()["status"], "stored")
+        self.assertNotIn("sensitive raw memory", added.text)
+        self.assertIn("memory_server_add", latest_event()["signals"])
+
+        search = client.post("/v1/memories/search", json={"query": "anything"})
+        self.assertEqual(search.json()["memories"][0]["user_id"], "EXAMPLE_USER_0001")
+        digest = search.json()["query_digest"]
+        self.assertEqual(len(digest), 64)
+        self.assertTrue(all(ch in "0123456789abcdef" for ch in digest))
+        self.assertIn("memory_server_search", latest_event()["signals"])
+
+        sessions = client.get("/v1/sessions")
+        self.assertEqual(sessions.json()["sessions"][0]["id"], "EXAMPLE_SESSION_0001")
+        self.assertIn("memory_server_sessions", latest_event()["signals"])
+
+        messages = client.get("/v1/sessions/EXAMPLE_SESSION_0001/messages")
+        self.assertIn("EXAMPLE_MESSAGE_0001", messages.text)
+        self.assertIn("memory_server_session_messages", latest_event()["signals"])
+
+        message_add = client.post(
+            "/v1/sessions/EXAMPLE_SESSION_0001/messages",
+            json={"content": "another raw message"},
+        )
+        self.assertNotIn("another raw message", message_add.text)
+        self.assertIn("memory_server_session_message_add", latest_event()["signals"])
+
+        missing = client.get("/v1/sessions/NOPE/messages")
+        self.assertEqual(missing.status_code, 404)
+
+        client.get("/api/memory")
+        self.assertIn("memory_server_api_memory", latest_event()["signals"])
+
 
 if __name__ == "__main__":
     unittest.main()
