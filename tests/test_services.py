@@ -713,6 +713,38 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn("access_denied", device_submit.text)
         self.assertIn("oauth_device_submit", latest_event()["signals"])
 
+    def test_telemetry_ingest_accepts_but_never_stores_payloads(self) -> None:
+        module = load_service(
+            "test_telemetry_ingest_app",
+            "categories/telemetry-ingest-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        traces = client.post(
+            "/v1/traces",
+            content=b"raw telemetry payload",
+            headers={"Content-Type": "application/x-protobuf"},
+        )
+        self.assertEqual(traces.json()["partialSuccess"]["rejectedSpans"], 0)
+        self.assertIn("telemetry_otlp_traces", latest_event()["signals"])
+        self.assertNotIn("raw telemetry payload", traces.text)
+
+        metrics = client.post("/v1/metrics", json={"dataPoints": [1, 2, 3]})
+        self.assertEqual(metrics.json()["partialSuccess"]["rejectedDataPoints"], 0)
+        self.assertIn("telemetry_otlp_metrics", latest_event()["signals"])
+
+        logs = client.post("/v1/logs", json={"logRecords": ["EXAMPLE"]})
+        self.assertEqual(logs.json()["partialSuccess"]["rejectedLogRecords"], 0)
+        self.assertIn("telemetry_otlp_logs", latest_event()["signals"])
+
+        probe = client.get("/otel/v1/traces")
+        self.assertIn("EXAMPLE otel collector", probe.text)
+        self.assertIn("telemetry_otel_probe", latest_event()["signals"])
+
+        root = client.get("/")
+        self.assertIn("/v1/traces", root.text)
+        self.assertIn("telemetry_root_probe", latest_event()["signals"])
+
 
 if __name__ == "__main__":
     unittest.main()
