@@ -1,0 +1,8 @@
+services:
+  memory-server-trap:
+    build:
+      context: ../..
+      dockerfile: categories/memory-server-trap/Dockerfile
+    image: ai-honeypot/memory-server-trap:local
+    ports:
+      - "127.0.0.1:8096:8096"
