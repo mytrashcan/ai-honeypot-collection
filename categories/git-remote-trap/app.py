@@ -22,11 +22,16 @@ DECOY_PATH = Path(__file__).with_name("decoy_data.json")
 REPO_NAMES = {"acme/secret-project", "acme/infrastructure", "acme/payments"}
 
 # Dumb-HTTP git protocol responses (git-upload-pack advertisement).
+# pkt-line framing: "<4-hex length><payload>\n", length includes the 4-char
+# prefix. Line 2 payload = 40 SHA + 1 space + 15 (refs/heads/main) + 1 NUL
+# + 13 (report-status) + 1 \n = 71; +4 prefix = 75 = 0x4b -> "004b".
+# Line 3 payload = 40 + 1 + 25 (refs/heads/feature/secret) + 1 \n = 67;
+# +4 prefix = 71 = 0x47 -> "0047".  (verified against git pkt-line spec)
 _UPLOAD_PACK_ADVERTISEMENT = (
     "001e# service=git-upload-pack\n"
     "0000"
-    "003c0000000000000000000000000000000000000000 refs/heads/main\x00report-status\n"
-    "003f0000000000000000000000000000000000000000 refs/heads/feature/secret\n"
+    "004b0000000000000000000000000000000000000000 refs/heads/main\x00report-status\n"
+    "00470000000000000000000000000000000000000000 refs/heads/feature/secret\n"
     "0000"
 )
 
