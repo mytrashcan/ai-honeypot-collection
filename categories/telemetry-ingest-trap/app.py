@@ -11,17 +11,23 @@ deferred (highest human false-positive risk).
 from __future__ import annotations
 
 import hashlib
+import json
+from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from honeypot_common import install_fastapi_tracking, mark_signal
 
-ACCEPTED_CONTENT_TYPES = (
-    "application/json",
-    "application/x-protobuf",
-    "application/x-ndjson",
-)
+DECOY_PATH = Path(__file__).with_name("decoy_data.json")
+
+
+def _load_decoys() -> dict[str, Any]:
+    """Load the immutable service-metadata fixtures."""
+
+    with DECOY_PATH.open(encoding="utf-8") as handle:
+        return json.load(handle)
 
 
 def _body_digest(body: bytes) -> str:
@@ -39,6 +45,7 @@ def create_app() -> FastAPI:
         redoc_url=None,
         openapi_url=None,
     )
+    decoys = _load_decoys()
     install_fastapi_tracking(app, "telemetry-ingest-trap")
 
     @app.get("/healthz")
@@ -78,13 +85,17 @@ def create_app() -> FastAPI:
     @app.get("/otel/v1/traces")
     def otel_traces_probe(request: Request) -> JSONResponse:
         mark_signal(request, "telemetry_otel_probe")
-        return JSONResponse({"status": "ok", "service": "EXAMPLE otel collector"})
+        return JSONResponse({"status": "ok", "service": decoys["service"]})
 
     @app.get("/")
     def root(request: Request) -> JSONResponse:
         mark_signal(request, "telemetry_root_probe")
         return JSONResponse(
-            {"status": "ok", "endpoints": ["/v1/traces", "/v1/metrics", "/v1/logs"]}
+            {
+                "status": "ok",
+                "service": decoys["service"],
+                "endpoints": ["/v1/traces", "/v1/metrics", "/v1/logs"],
+            }
         )
 
     return app
