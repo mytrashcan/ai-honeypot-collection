@@ -19,7 +19,6 @@ from honeypot_common import install_fastapi_tracking, mark_signal
 
 DECOY_PATH = Path(__file__).with_name("decoy_data.json")
 
-ISSUER = "https://example.invalid"
 CLIENT_ID = "EXAMPLE_CLIENT_0001"
 
 
@@ -37,6 +36,14 @@ def _error_response(code: str, description: str) -> JSONResponse:
         {"error": code, "error_description": description},
         status_code=400,
     )
+
+
+def _issuer(request: Request) -> str:
+    """Derive the issuer from the request host so discovery-document URLs
+    point back at this honeypot instead of an unresolvable reserved TLD."""
+
+    base = str(request.base_url).rstrip("/")
+    return base
 
 
 def create_app() -> FastAPI:
@@ -58,13 +65,14 @@ def create_app() -> FastAPI:
     @app.get("/.well-known/openid-configuration")
     def oidc_discovery(request: Request) -> JSONResponse:
         mark_signal(request, "oauth_oidc_discovery")
+        issuer = _issuer(request)
         return JSONResponse(
             {
-                "issuer": ISSUER,
-                "authorization_endpoint": f"{ISSUER}/oauth/authorize",
-                "token_endpoint": f"{ISSUER}/oauth/token",
-                "device_authorization_endpoint": f"{ISSUER}/oauth/devicecode",
-                "jwks_uri": f"{ISSUER}/oauth/jwks",
+                "issuer": issuer,
+                "authorization_endpoint": f"{issuer}/oauth/authorize",
+                "token_endpoint": f"{issuer}/oauth/token",
+                "device_authorization_endpoint": f"{issuer}/oauth/devicecode",
+                "jwks_uri": f"{issuer}/oauth/jwks",
                 "response_types_supported": ["code", "token"],
                 "grant_types_supported": [
                     "authorization_code",
@@ -105,12 +113,13 @@ def create_app() -> FastAPI:
     @app.post("/oauth/devicecode")
     def oauth_devicecode(request: Request) -> JSONResponse:
         mark_signal(request, "oauth_device_code")
+        issuer = _issuer(request)
         return JSONResponse(
             {
                 "device_code": "EXAMPLE_DEVICE_CODE_0001",
                 "user_code": "EXAMPLE-USER-CODE",
-                "verification_uri": f"{ISSUER}/device",
-                "verification_uri_complete": f"{ISSUER}/device?user_code=EXAMPLE-USER-CODE",
+                "verification_uri": f"{issuer}/device",
+                "verification_uri_complete": f"{issuer}/device?user_code=EXAMPLE-USER-CODE",
                 "expires_in": 1800,
                 "interval": 5,
             }
@@ -157,8 +166,17 @@ def create_app() -> FastAPI:
         mark_signal(request, "oauth_device_page")
         return HTMLResponse(
             "<!DOCTYPE html><html><body><h1>Enter code</h1>"
-            '<form method="post"><input name="user_code" placeholder="EXAMPLE-USER-CODE">'
+            '<form method="post" action="/device">'
+            '<input name="user_code" placeholder="EXAMPLE-USER-CODE">'
             '<button type="submit">Submit</button></form></body></html>'
+        )
+
+    @app.post("/device")
+    def device_submit(request: Request) -> JSONResponse:
+        mark_signal(request, "oauth_device_submit")
+        return _error_response(
+            "access_denied",
+            "EXAMPLE device authorization denied",
         )
 
     return app

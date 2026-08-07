@@ -26,12 +26,14 @@ token exchange, device code — while never issuing a real token.
 
 - `oauth_oidc_discovery` / `oauth_jwks` / `oauth_authorize`
 - `oauth_token_exchange` / `oauth_device_code` / `oauth_device_token_poll`
-- `oauth_login_page` / `oauth_login_submit` / `oauth_consent_page` / `oauth_device_page`
+- `oauth_login_page` / `oauth_login_submit` / `oauth_consent_page` / `oauth_device_page` / `oauth_device_submit`
 
 ## Safety
 
 - No real tokens are ever issued — every grant attempt returns an
   invalid_grant / access_denied error.
+- The issuer is derived from the request host, so discovery-document
+  URLs always point back at this honeypot (never an external TLD).
 - JWKS contains only an EXAMPLE placeholder modulus.
 - EXAMPLE-prefixed identifiers; no credential validation.
 - Container runs as UID/GID 10001 with a read-only root filesystem and
