@@ -1,0 +1,8 @@
+services:
+  telemetry-ingest-trap:
+    build:
+      context: ../..
+      dockerfile: categories/telemetry-ingest-trap/Dockerfile
+    image: ai-honeypot/telemetry-ingest-trap:local
+    ports:
+      - "127.0.0.1:8098:8098"
