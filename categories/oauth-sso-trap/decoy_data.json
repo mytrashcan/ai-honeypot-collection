@@ -1,0 +1,12 @@
+{
+  "jwks": [
+    {
+      "kty": "RSA",
+      "use": "sig",
+      "kid": "EXAMPLE-KID-0001",
+      "alg": "RS256",
+      "n": "EXAMPLE-BASE64URL-MODULUS-NOT-A-REAL-KEY",
+      "e": "AQAB"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+services:
+  oauth-sso-trap:
+    build:
+      context: ../..
+      dockerfile: categories/oauth-sso-trap/Dockerfile
+    image: ai-honeypot/oauth-sso-trap:local
+    ports:
+      - "127.0.0.1:8097:8097"

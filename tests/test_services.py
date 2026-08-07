@@ -662,6 +662,57 @@ class ServiceSmokeTests(unittest.TestCase):
         client.get("/api/memory")
         self.assertIn("memory_server_api_memory", latest_event()["signals"])
 
+    def test_oauth_sso_never_issues_tokens(self) -> None:
+        module = load_service(
+            "test_oauth_sso_app",
+            "categories/oauth-sso-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        discovery = client.get("/.well-known/openid-configuration")
+        self.assertIn("oauth/devicecode", discovery.text)
+        self.assertIn("testserver", discovery.json()["issuer"])
+        self.assertIn("oauth_oidc_discovery", latest_event()["signals"])
+
+        jwks = client.get("/oauth/jwks")
+        self.assertIn("EXAMPLE-KID-0001", jwks.text)
+        self.assertIn("oauth_jwks", latest_event()["signals"])
+
+        bad_client = client.get("/oauth/authorize", params={"client_id": "wrong"})
+        self.assertEqual(bad_client.status_code, 400)
+        self.assertIn("invalid_client", bad_client.text)
+
+        token = client.post("/oauth/token", json={"grant_type": "authorization_code"})
+        self.assertEqual(token.status_code, 400)
+        self.assertIn("invalid_grant", token.text)
+        self.assertIn("oauth_token_exchange", latest_event()["signals"])
+
+        device = client.post("/oauth/devicecode")
+        self.assertIn("EXAMPLE_DEVICE_CODE_0001", device.text)
+        self.assertIn("oauth_device_code", latest_event()["signals"])
+
+        poll = client.post("/oauth/token/device")
+        self.assertEqual(poll.status_code, 400)
+        self.assertIn("authorization_pending", poll.text)
+        self.assertIn("oauth_device_token_poll", latest_event()["signals"])
+
+        login = client.get("/login")
+        self.assertIn("Sign in", login.text)
+        self.assertIn("oauth_login_page", latest_event()["signals"])
+
+        submit = client.post("/login", data={"username": "EXAMPLE", "password": "EXAMPLE"})
+        self.assertIn("invalid_grant", submit.text)
+        self.assertIn("oauth_login_submit", latest_event()["signals"])
+
+        consent = client.get("/consent")
+        self.assertIn("Authorize application", consent.text)
+        self.assertIn("oauth_consent_page", latest_event()["signals"])
+
+        device_submit = client.post("/device", data={"user_code": "EXAMPLE-USER-CODE"})
+        self.assertEqual(device_submit.status_code, 400)
+        self.assertIn("access_denied", device_submit.text)
+        self.assertIn("oauth_device_submit", latest_event()["signals"])
+
 
 if __name__ == "__main__":
     unittest.main()
