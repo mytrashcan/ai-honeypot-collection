@@ -745,6 +745,43 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn("/v1/traces", root.text)
         self.assertIn("telemetry_root_probe", latest_event()["signals"])
 
+    def test_feed_webhook_canary_link_proves_follow_through(self) -> None:
+        module = load_service(
+            "test_feed_webhook_app",
+            "categories/feed-webhook-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        rss = client.get("/feed.xml")
+        self.assertIn("EXAMPLE-CANARY-0001", rss.text)
+        self.assertIn("testserver", rss.text)
+        self.assertNotIn("example.invalid", rss.text)
+        self.assertIn("feed_rss_fetch", latest_event()["signals"])
+
+        atom = client.get("/atom.xml")
+        self.assertIn("EXAMPLE-CANARY-0001", atom.text)
+        self.assertIn("testserver", atom.text)
+        self.assertIn("feed_atom_fetch", latest_event()["signals"])
+
+        llms = client.get("/llms.txt")
+        self.assertIn("EXAMPLE-CANARY-0001", llms.text)
+        self.assertIn("testserver", llms.text)
+        self.assertNotIn("example.invalid", llms.text)
+        self.assertIn("feed_llms_txt", latest_event()["signals"])
+
+        canary = client.get("/canary/EXAMPLE-CANARY-0001")
+        self.assertIn("EXAMPLE canary page", canary.text)
+        self.assertIn("feed_canary_follow", latest_event()["signals"])
+
+        webhook = client.post("/webhooks/events", content=b"raw webhook payload")
+        self.assertEqual(webhook.json()["received"], True)
+        self.assertNotIn("raw webhook payload", webhook.text)
+        self.assertIn("feed_webhook_events", latest_event()["signals"])
+
+        token_webhook = client.post("/webhooks/EXAMPLE_TOKEN_ABC")
+        self.assertEqual(token_webhook.json()["token"], "EXAMPLE_TOKEN_ABC")
+        self.assertIn("feed_webhook_token", latest_event()["signals"])
+
 
 if __name__ == "__main__":
     unittest.main()
