@@ -14,11 +14,11 @@ behavior, which no other category in this collection covers.
 
 | Endpoint | Purpose | Port |
 | --- | --- | --- |
-| `/v1/memories` (GET/POST) | List or store memories | 8096 |
-| `/v1/memories/search` (POST) | Semantic memory search | 8096 |
-| `/v1/sessions` (GET) | List sessions | 8096 |
-| `/v1/sessions/{id}/messages` (GET/POST) | Read or append messages | 8096 |
-| `/api/memory`, `/memories` | Legacy/alternate surfaces | 8096 |
+| `/v1/memories` (GET/POST) | List or store memories | 8097 |
+| `/v1/memories/search` (POST) | Semantic memory search | 8097 |
+| `/v1/sessions` (GET) | List sessions | 8097 |
+| `/v1/sessions/{id}/messages` (GET/POST) | Read or append messages | 8097 |
+| `/api/memory`, `/memories` | Legacy/alternate surfaces | 8097 |
 
 ## Detection signals
 
