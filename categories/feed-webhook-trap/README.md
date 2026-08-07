@@ -16,11 +16,11 @@ canary surface has near-zero human false positives — humans don't fetch
 
 | Endpoint | Purpose | Port |
 | --- | --- | --- |
-| `/feed.xml`, `/rss` | RSS 2.0 feed with canary item | 8099 |
-| `/atom.xml` | Atom feed with canary entry | 8099 |
-| `/llms.txt` | AI-agent canary surface | 8099 |
-| `/canary/EXAMPLE-CANARY-0001` | Canary link target (follow-through proof) | 8099 |
-| `/webhooks/events`, `/webhooks/{token}` | Webhook receivers | 8099 |
+| `/feed.xml`, `/rss` | RSS 2.0 feed with canary item | 8100 |
+| `/atom.xml` | Atom feed with canary entry | 8100 |
+| `/llms.txt` | AI-agent canary surface | 8100 |
+| `/canary/EXAMPLE-CANARY-0001` | Canary link target (follow-through proof) | 8100 |
+| `/webhooks/events`, `/webhooks/{token}` | Webhook receivers | 8100 |
 
 ## Detection signals
 
