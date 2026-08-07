@@ -511,7 +511,7 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn("registry_npm_metadata", latest_event()["signals"])
 
         tarball = client.get("/lodahs/-/lodahs-1.0.0.tgz")
-        self.assertIn(b"inert decoy fixture", gzip.decompress(tarball.content))
+        self.assertIn(b"EXAMPLE inert fixture", gzip.decompress(tarball.content))
         self.assertIn("registry_npm_tarball", latest_event()["signals"])
 
         pypi = client.get("/simple/lodahs/")

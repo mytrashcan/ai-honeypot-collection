@@ -14,9 +14,9 @@ positive rate.
 
 | Surface | Endpoints | Port |
 | --- | --- | --- |
-| npm registry | `/-/v1/search`, `/{package}`, `/{package}/-/{file}.tgz` | 8094 |
-| PyPI | `/simple/{package}/`, `/pypi/{package}/json` | 8094 |
-| OCI registry | `/v2/`, `/v2/{image}/manifests/latest`, `/v2/{image}/tags/list` | 8094 |
+| npm registry | `/-/v1/search`, `/{package}`, `/{package}/-/{file}.tgz` | 8095 |
+| PyPI | `/simple/{package}/`, `/pypi/{package}/json` | 8095 |
+| OCI registry | `/v2/`, `/v2/{image}/manifests/latest`, `/v2/{image}/tags/list` | 8095 |
 
 Typosquat fixtures: `lodahs`, `express-frameworkz`, `requestz` (npm),
 `numpy-fasth` (PyPI), `n0de/node`, `ngnix/nginx`, `redis-cach` (OCI).

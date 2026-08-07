@@ -9,6 +9,7 @@ EXAMPLE prefix, and no endpoint executes or validates anything.
 from __future__ import annotations
 
 import gzip
+import html
 import json
 from pathlib import Path
 from typing import Any
@@ -41,7 +42,7 @@ def _placeholder_tarball(name: str) -> bytes:
     """Return a deterministic gzip placeholder for a fake package tarball."""
 
     payload = (
-        f"package {name} (inert decoy fixture)\n"
+        f"package {name} (EXAMPLE inert fixture)\n"
         "name: EXAMPLE-{0}\nversion: 1.0.0\ndescription: EXAMPLE distribution\n".format(
             name
         )
@@ -118,10 +119,12 @@ def create_app() -> FastAPI:
         mark_signal(request, "registry_pypi_simple")
         if package not in PYPI_PACKAGES:
             return JSONResponse({"error": "Not found"}, status_code=404)
+        safe_package = html.escape(package)
+        wheel_href = f"{safe_package}-1.0.0-py3-none-any.whl"
         body = (
-            f"<!DOCTYPE html><html><head><title>Links for {package}</title></head>"
-            f"<body><h1>Links for {package}</h1>"
-            f'<a href="{package}-1.0.0-py3-none-any.whl">{package}-1.0.0-py3-none-any.whl</a>'
+            f"<!DOCTYPE html><html><head><title>Links for {safe_package}</title></head>"
+            f"<body><h1>Links for {safe_package}</h1>"
+            f'<a href="{wheel_href}">{wheel_href}</a>'
             f"</body></html>"
         )
         return Response(content=body, media_type="text/html; charset=utf-8")
