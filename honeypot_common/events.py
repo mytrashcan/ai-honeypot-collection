@@ -163,6 +163,9 @@ def install_fastapi_tracking(
                     break
             body = bytes(chunks[:MAX_BODY_BYTES])
             request._body = body
+            # FastAPI may hand the handler a different Request instance, so
+            # also publish the bounded body on the shared scope.
+            request.scope["honeypot_body"] = body
 
         if too_large:
             response = JSONResponse({"detail": "Request body too large"}, status_code=413)

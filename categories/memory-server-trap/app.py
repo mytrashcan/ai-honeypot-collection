@@ -60,7 +60,9 @@ def create_app() -> FastAPI:
 
     @app.post("/v1/memories")
     def memories_add(request: Request) -> JSONResponse:
-        body = getattr(request, "_body", b"")  # bounded by tracking middleware
+        # The tracking middleware publishes the bounded body (<= 64 KiB) on
+        # the shared scope; raw content is never stored or echoed.
+        body = request.scope.get("honeypot_body", b"")
         mark_signal(request, "memory_server_add")
         return JSONResponse(
             {
@@ -72,8 +74,14 @@ def create_app() -> FastAPI:
 
     @app.post("/v1/memories/search")
     def memories_search(request: Request) -> JSONResponse:
+        body = request.scope.get("honeypot_body", b"")
         mark_signal(request, "memory_server_search")
-        return JSONResponse({"memories": decoys["memories"], "query_digest": ""})
+        return JSONResponse(
+            {
+                "memories": decoys["memories"],
+                "query_digest": _body_digest(body),
+            }
+        )
 
     @app.get("/v1/sessions")
     def sessions_list(request: Request) -> JSONResponse:
@@ -93,7 +101,8 @@ def create_app() -> FastAPI:
     def session_messages_add(session_id: str, request: Request) -> JSONResponse:
         if session_id != EXAMPLE_SESSION_ID:
             return JSONResponse({"error": "Not found"}, status_code=404)
-        body = getattr(request, "_body", b"")
+        # Same cross-module contract as /v1/memories: scope-published body.
+        body = request.scope.get("honeypot_body", b"")
         mark_signal(request, "memory_server_session_message_add")
         return JSONResponse(
             {"id": "EXAMPLE_MESSAGE_0001", "body_sha256": _body_digest(body)}
