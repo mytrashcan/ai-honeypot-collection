@@ -6,7 +6,7 @@
         "version": "1.0.0",
         "description": "Utility library with array helpers",
         "dist": {
-          "tarball": "https://registry.example.invalid/lodahs/-/lodahs-1.0.0.tgz",
+          "tarball": "/lodahs/-/lodahs-1.0.0.tgz",
           "integrity": "sha512-EXAMPLE-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         },
         "maintainers": [{"name": "EXAMPLE_Maintainer"}],
@@ -17,7 +17,7 @@
         "version": "1.0.0",
         "description": "Minimalist web framework for Node.js",
         "dist": {
-          "tarball": "https://registry.example.invalid/express-frameworkz/-/express-frameworkz-1.0.0.tgz",
+          "tarball": "/express-frameworkz/-/express-frameworkz-1.0.0.tgz",
           "integrity": "sha512-EXAMPLE-BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
         },
         "maintainers": [{"name": "EXAMPLE_Maintainer"}],
@@ -28,7 +28,7 @@
         "version": "1.0.0",
         "description": "HTTP client for humans",
         "dist": {
-          "tarball": "https://registry.example.invalid/requestz/-/requestz-1.0.0.tgz",
+          "tarball": "/requestz/-/requestz-1.0.0.tgz",
           "integrity": "sha512-EXAMPLE-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
         },
         "maintainers": [{"name": "EXAMPLE_Maintainer"}],
@@ -36,16 +36,19 @@
       }
     ]
   },
+  "pypi": {
+    "packages": ["lodahs", "express-frameworkz", "numpy-fasth"]
+  },
   "oci": {
     "manifests": {
       "n0de/node": {
-        "digest": "sha256:EXAMPLE0000000000000000000000000000000000000000000000000000"
+        "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
       },
       "ngnix/nginx": {
-        "digest": "sha256:EXAMPLE1111111111111111111111111111111111111111111111111111"
+        "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
       },
       "redis-cach": {
-        "digest": "sha256:EXAMPLE2222222222222222222222222222222222222222222222222222"
+        "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
       }
     }
   }

@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import gzip
 import importlib.util
+import io
 import json
 import os
 import sys
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 from types import ModuleType
 
@@ -506,8 +508,14 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertEqual(search.json()["total"], 1)
         self.assertIn("registry_npm_search", latest_event()["signals"])
 
+        search_empty = client.get("/-/v1/search")
+        self.assertEqual(search_empty.json()["total"], 3)
+        self.assertIn("registry_npm_search", latest_event()["signals"])
+
         metadata = client.get("/lodahs")
         self.assertEqual(metadata.json()["name"], "lodahs")
+        # tarball reference is rewritten to this honeypot (organic flow)
+        self.assertIn("lodahs/-/lodahs-1.0.0.tgz", metadata.json()["dist"]["tarball"])
         self.assertIn("registry_npm_metadata", latest_event()["signals"])
 
         tarball = client.get("/lodahs/-/lodahs-1.0.0.tgz")
@@ -518,6 +526,13 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn("Links for lodahs", pypi.text)
         self.assertIn("registry_pypi_simple", latest_event()["signals"])
 
+        wheel = client.get("/simple/numpy-fasth/numpy-fasth-1.0.0-py3-none-any.whl")
+        self.assertEqual(wheel.status_code, 200)
+        wheel_zip = zipfile.ZipFile(io.BytesIO(wheel.content))
+        self.assertIn("numpy-fasth/WHEEL", wheel_zip.namelist())
+        self.assertIn(b"Wheel-Version", wheel_zip.read("numpy-fasth/WHEEL"))
+        self.assertIn("registry_pypi_wheel", latest_event()["signals"])
+
         pypi_json = client.get("/pypi/numpy-fasth/json")
         self.assertEqual(pypi_json.json()["info"]["name"], "numpy-fasth")
         self.assertIn("registry_pypi_json", latest_event()["signals"])
@@ -525,6 +540,12 @@ class ServiceSmokeTests(unittest.TestCase):
         oci = client.get("/v2/n0de/node/manifests/latest")
         self.assertEqual(oci.json()["schemaVersion"], 2)
         self.assertIn("registry_oci_manifest", latest_event()["signals"])
+
+        blob = client.get(
+            "/v2/n0de/node/blobs/sha256:0000000000000000000000000000000000000000000000000000000000000000"
+        )
+        self.assertEqual(blob.status_code, 200)
+        self.assertIn("registry_oci_blob", latest_event()["signals"])
 
         unknown = client.get("/v2/nonexistent/image/manifests/latest")
         self.assertEqual(unknown.status_code, 404)
