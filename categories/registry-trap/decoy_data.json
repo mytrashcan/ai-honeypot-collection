@@ -1,0 +1,52 @@
+{
+  "npm": {
+    "packages": [
+      {
+        "name": "lodahs",
+        "version": "1.0.0",
+        "description": "Utility library with array helpers",
+        "dist": {
+          "tarball": "https://registry.example.invalid/lodahs/-/lodahs-1.0.0.tgz",
+          "integrity": "sha512-EXAMPLE-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        "maintainers": [{"name": "EXAMPLE_Maintainer"}],
+        "keywords": ["utility", "array", "EXAMPLE"]
+      },
+      {
+        "name": "express-frameworkz",
+        "version": "1.0.0",
+        "description": "Minimalist web framework for Node.js",
+        "dist": {
+          "tarball": "https://registry.example.invalid/express-frameworkz/-/express-frameworkz-1.0.0.tgz",
+          "integrity": "sha512-EXAMPLE-BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+        },
+        "maintainers": [{"name": "EXAMPLE_Maintainer"}],
+        "keywords": ["web", "framework", "EXAMPLE"]
+      },
+      {
+        "name": "requestz",
+        "version": "1.0.0",
+        "description": "HTTP client for humans",
+        "dist": {
+          "tarball": "https://registry.example.invalid/requestz/-/requestz-1.0.0.tgz",
+          "integrity": "sha512-EXAMPLE-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+        },
+        "maintainers": [{"name": "EXAMPLE_Maintainer"}],
+        "keywords": ["http", "client", "EXAMPLE"]
+      }
+    ]
+  },
+  "oci": {
+    "manifests": {
+      "n0de/node": {
+        "digest": "sha256:EXAMPLE0000000000000000000000000000000000000000000000000000"
+      },
+      "ngnix/nginx": {
+        "digest": "sha256:EXAMPLE1111111111111111111111111111111111111111111111111111"
+      },
+      "redis-cach": {
+        "digest": "sha256:EXAMPLE2222222222222222222222222222222222222222222222222222"
+      }
+    }
+  }
+}

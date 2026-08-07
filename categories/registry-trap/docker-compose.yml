@@ -1,0 +1,8 @@
+services:
+  registry-trap:
+    build:
+      context: ../..
+      dockerfile: categories/registry-trap/Dockerfile
+    image: ai-honeypot/registry-trap:local
+    ports:
+      - "127.0.0.1:8094:8094"
