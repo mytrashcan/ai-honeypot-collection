@@ -11,7 +11,7 @@
     "tenant_id": "EXAMPLE-NOT-A-UUID-AZURE-TENANT"
   },
   "gcp": {
-    "client_email": "example-service-account@example.invalid",
+    "client_email": "EXAMPLE-service-account@EXAMPLE_REQUEST_HOST",
     "private_key": "-----BEGIN EXAMPLE INVALID PRIVATE KEY-----\\nNOT-KEY-MATERIAL\\n-----END EXAMPLE INVALID PRIVATE KEY-----",
     "project_id": "example-decoy-project"
   },

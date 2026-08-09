@@ -21,6 +21,12 @@ def _load_decoys() -> dict[str, Any]:
         return json.load(handle)
 
 
+def _base_url(request: Request) -> str:
+    """Return the current honeypot base URL without a trailing slash."""
+
+    return str(request.base_url).rstrip("/")
+
+
 def create_app() -> FastAPI:
     """Create the independently deployable scanner-trap application."""
 
@@ -58,12 +64,13 @@ def create_app() -> FastAPI:
     @app.get("/actuator")
     def actuator_index(request: Request) -> JSONResponse:
         mark_signal(request, "spring_actuator_probe")
+        base = _base_url(request)
         return JSONResponse(
             {
                 "_links": {
-                    "self": {"href": "https://example.invalid/actuator"},
-                    "health": {"href": "https://example.invalid/actuator/health"},
-                    "env": {"href": "https://example.invalid/actuator/env"},
+                    "self": {"href": f"{base}/actuator"},
+                    "health": {"href": f"{base}/actuator/health"},
+                    "env": {"href": f"{base}/actuator/env"},
                 }
             }
         )
@@ -99,7 +106,8 @@ def create_app() -> FastAPI:
         body = "\n".join(
             [
                 "APP_ENV=EXAMPLE_DECOY_ONLY",
-                f"DATABASE_URL={decoys['credentials']['database_url']}",
+                f"DATABASE_URL={_base_url(request)}"
+                f"{decoys['credentials']['database_url']}",
                 f"API_TOKEN={decoys['credentials']['api_token']}",
                 "",
             ]
@@ -111,7 +119,7 @@ def create_app() -> FastAPI:
         mark_signal(request, "source_control_probe")
         return PlainTextResponse(
             '[core]\n\trepositoryformatversion = 0\n'
-            '[remote "origin"]\n\turl = https://example.invalid/EXAMPLE/decoy.git\n'
+            f'[remote "origin"]\n\turl = {_base_url(request)}/EXAMPLE/decoy.git\n'
         )
 
     @app.api_route("/wp-admin", methods=["GET", "POST"])

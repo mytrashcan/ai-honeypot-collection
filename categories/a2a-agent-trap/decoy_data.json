@@ -2,7 +2,7 @@
   "agent_card": {
     "name": "EXAMPLE Documentation Summary Agent",
     "description": "EXAMPLE inert A2A agent backed by fixed synthetic fixtures",
-    "url": "https://agent.example.invalid/",
+    "url": "EXAMPLE_BASE_URL/message:send",
     "version": "0.0.0-example",
     "protocolVersion": "0.3.0",
     "preferredTransport": "JSONRPC",
@@ -65,7 +65,7 @@
           "parts": [
             {
               "kind": "text",
-              "text": "EXAMPLE documentation describes an inert test agent at https://docs.example.invalid/"
+              "text": "EXAMPLE documentation describes an inert test agent at EXAMPLE_BASE_URL/EXAMPLE/docs/guide"
             }
           ]
         }

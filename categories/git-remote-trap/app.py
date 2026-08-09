@@ -43,6 +43,12 @@ def _load_decoys() -> dict[str, Any]:
         return json.load(handle)
 
 
+def _base_url(request: Request) -> str:
+    """Return the current honeypot base URL without a trailing slash."""
+
+    return str(request.base_url).rstrip("/")
+
+
 def _is_known_repo(repository: str) -> bool:
     """Accept only the seeded repository names."""
 
@@ -100,7 +106,7 @@ def create_app() -> FastAPI:
             {
                 "full_name": repository,
                 "private": False,
-                "clone_url": f"https://example.invalid/{repository}.git",
+                "clone_url": f"{_base_url(request)}/{repository}.git",
                 "default_branch": "main",
                 "description": "EXAMPLE repository",
             }

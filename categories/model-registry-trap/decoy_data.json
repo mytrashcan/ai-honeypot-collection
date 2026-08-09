@@ -13,7 +13,7 @@
             "current_stage": "Production",
             "status": "READY",
             "run_id": "EXAMPLE_RUN_ID",
-            "source": "https://artifacts.example.invalid/EXAMPLE_MODEL/1"
+            "source": "EXAMPLE_BASE_URL/EXAMPLE_MODEL/1"
           }
         ],
         "tags": [
@@ -36,7 +36,7 @@
         "description": "EXAMPLE immutable synthetic model version",
         "run_id": "EXAMPLE_RUN_ID",
         "status": "READY",
-        "source": "https://artifacts.example.invalid/EXAMPLE_MODEL/1"
+        "source": "EXAMPLE_BASE_URL/EXAMPLE_MODEL/1"
       }
     ]
   },
@@ -50,11 +50,11 @@
       "description": "EXAMPLE metadata fixture; no model is available",
       "run_id": "EXAMPLE_RUN_ID",
       "status": "READY",
-      "source": "https://artifacts.example.invalid/EXAMPLE_MODEL/1"
+      "source": "EXAMPLE_BASE_URL/EXAMPLE_MODEL/1"
     }
   },
   "mlflow_download_uri": {
-    "artifact_uri": "https://artifacts.example.invalid/EXAMPLE_MODEL/1/model.bin",
+    "artifact_uri": "EXAMPLE_BASE_URL/EXAMPLE_MODEL/1/model.bin",
     "detail": "EXAMPLE metadata only; no artifact is served"
   },
   "ollama_tags": {
@@ -76,7 +76,7 @@
   },
   "ollama_show": {
     "license": "EXAMPLE SYNTHETIC FIXTURE",
-    "modelfile": "FROM https://models.example.invalid/EXAMPLE_MODEL",
+    "modelfile": "FROM EXAMPLE_BASE_URL/EXAMPLE_MODEL",
     "parameters": "temperature 0",
     "template": "EXAMPLE fixed template; no inference is available",
     "details": {

@@ -3,7 +3,7 @@
   "데이터베이스": {
     "사용자": "EXAMPLE_USER",
     "비밀번호": "EXAMPLE_PASSWORD",
-    "호스트": "db.example.invalid"
+    "호스트": "EXAMPLE_REQUEST_HOST"
   },
   "클라우드": {
     "접근_키": "EXAMPLE-NOT-A-VALID-CLOUD-ACCESS-KEY",

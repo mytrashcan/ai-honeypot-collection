@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,23 @@ def _load_decoys() -> dict[str, Any]:
 
     with DECOY_PATH.open(encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def _base_url(request: Request) -> str:
+    """Return the current honeypot base URL without a trailing slash."""
+
+    return str(request.base_url).rstrip("/")
+
+
+def _message_response(decoys: dict[str, Any], request: Request) -> dict[str, Any]:
+    """Return the message fixture with a request-local documentation URL."""
+
+    response = deepcopy(decoys["message_response"])
+    response["result"]["artifacts"][0]["parts"][0]["text"] = (
+        "EXAMPLE documentation describes an inert test agent at "
+        f"{_base_url(request)}/EXAMPLE/docs/guide"
+    )
+    return response
 
 
 def _reject_file_upload(request: Request) -> JSONResponse | None:
@@ -53,7 +71,8 @@ def create_app() -> FastAPI:
     @app.get("/.well-known/agent-card.json")
     def agent_card(request: Request) -> JSONResponse:
         mark_signal(request, "a2a_discovery")
-        return JSONResponse(decoys["agent_card"])
+        card = {**decoys["agent_card"], "url": f"{_base_url(request)}/message:send"}
+        return JSONResponse(card)
 
     @app.post("/message:send")
     def message_send(request: Request) -> JSONResponse:
@@ -61,7 +80,7 @@ def create_app() -> FastAPI:
         rejected = _reject_file_upload(request)
         if rejected is not None:
             return rejected
-        return JSONResponse(decoys["message_response"])
+        return JSONResponse(_message_response(decoys, request))
 
     @app.post("/message:stream")
     def message_stream(request: Request) -> Response:
@@ -69,7 +88,7 @@ def create_app() -> FastAPI:
         rejected = _reject_file_upload(request)
         if rejected is not None:
             return rejected
-        event = json.dumps(decoys["message_response"], separators=(",", ":"))
+        event = json.dumps(_message_response(decoys, request), separators=(",", ":"))
         return PlainTextResponse(
             f"event: task\ndata: {event}\n\n",
             media_type="text/event-stream",

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -37,6 +38,21 @@ async def _extract_query(request: Request) -> str:
     except ValueError:
         document = {}
     return str(document.get("query", ""))
+
+
+def _base_url(request: Request) -> str:
+    """Return the current honeypot base URL without a trailing slash."""
+
+    return str(request.base_url).rstrip("/")
+
+
+def _request_host(request: Request) -> str:
+    """Return the hostname from the current request base URL."""
+
+    host = urlsplit(_base_url(request)).hostname
+    if host is None:
+        raise ValueError("request base URL has no hostname")
+    return host
 
 
 def create_app() -> FastAPI:
@@ -96,7 +112,7 @@ def create_app() -> FastAPI:
                         "users": [
                             {
                                 "apiKey": "EXAMPLE-NOT-A-VALID-GRAPHQL-KEY",
-                                "email": "admin@example.invalid",
+                                "email": f"EXAMPLE-admin@{_request_host(request)}",
                                 "id": "EXAMPLE-USER-001",
                             }
                         ]

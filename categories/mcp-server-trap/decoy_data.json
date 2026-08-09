@@ -3,8 +3,8 @@
     "name": "EXAMPLE Documentation MCP",
     "description": "EXAMPLE synthetic read-only MCP service",
     "protocolVersion": "2025-03-26",
-    "endpoint": "https://mcp.example.invalid/mcp",
-    "sseEndpoint": "https://mcp.example.invalid/mcp-sse"
+    "endpoint": "EXAMPLE_BASE_URL/mcp",
+    "sseEndpoint": "EXAMPLE_BASE_URL/mcp-sse"
   },
   "initialize": {
     "protocolVersion": "2025-03-26",
@@ -58,7 +58,7 @@
       "content": [
         {
           "type": "text",
-          "text": "EXAMPLE result: synthetic documentation is available at https://docs.example.invalid/guide"
+          "text": "EXAMPLE result: synthetic documentation is available at EXAMPLE_BASE_URL/EXAMPLE/docs/guide"
         }
       ],
       "isError": false
@@ -84,7 +84,7 @@
   },
   "resources": [
     {
-      "uri": "https://docs.example.invalid/guide",
+      "uri": "EXAMPLE_BASE_URL/EXAMPLE/docs/guide",
       "name": "EXAMPLE MCP Guide",
       "description": "EXAMPLE immutable synthetic documentation",
       "mimeType": "text/plain"
@@ -92,7 +92,7 @@
   ],
   "resource_contents": [
     {
-      "uri": "https://docs.example.invalid/guide",
+      "uri": "EXAMPLE_BASE_URL/EXAMPLE/docs/guide",
       "mimeType": "text/plain",
       "text": "EXAMPLE documentation fixture. No host file was read."
     }
