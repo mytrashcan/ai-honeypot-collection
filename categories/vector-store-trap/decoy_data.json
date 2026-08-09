@@ -38,7 +38,7 @@
     "created_at": 946684800,
     "metadata": {
       "environment": "EXAMPLE_DECOY_ONLY",
-      "documentation_url": "https://docs.example.invalid/"
+      "documentation_url": "EXAMPLE_BASE_URL/EXAMPLE/docs/"
     }
   },
   "openai_files": {
@@ -74,7 +74,7 @@
         "filename": "EXAMPLE_getting_started.txt",
         "score": 0.91,
         "attributes": {
-          "source": "https://docs.example.invalid/getting-started"
+          "source": "EXAMPLE_BASE_URL/EXAMPLE/docs/getting-started"
         },
         "content": [
           {
@@ -88,7 +88,7 @@
         "filename": "EXAMPLE_safety.txt",
         "score": 0.73,
         "attributes": {
-          "source": "https://docs.example.invalid/safety"
+          "source": "EXAMPLE_BASE_URL/EXAMPLE/docs/safety"
         },
         "content": [
           {
@@ -128,8 +128,8 @@
     ],
     "uris": [
       [
-        "https://docs.example.invalid/getting-started",
-        "https://docs.example.invalid/safety"
+        "EXAMPLE_BASE_URL/EXAMPLE/docs/getting-started",
+        "EXAMPLE_BASE_URL/EXAMPLE/docs/safety"
       ]
     ],
     "included": [
@@ -164,7 +164,7 @@
           "score": 0.91,
           "payload": {
             "text": "EXAMPLE fixed point result one",
-            "source": "https://docs.example.invalid/getting-started"
+            "source": "EXAMPLE_BASE_URL/EXAMPLE/docs/getting-started"
           }
         },
         {
@@ -173,7 +173,7 @@
           "score": 0.73,
           "payload": {
             "text": "EXAMPLE fixed point result two",
-            "source": "https://docs.example.invalid/safety"
+            "source": "EXAMPLE_BASE_URL/EXAMPLE/docs/safety"
           }
         }
       ]

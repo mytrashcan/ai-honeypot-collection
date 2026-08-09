@@ -214,10 +214,15 @@ class ServiceSmokeTests(unittest.TestCase):
         )
         client = TestClient(module.create_app())
 
-        self.assertIn(b"EXAMPLE", client.get("/.env").content)
+        environment = client.get("/.env")
+        self.assertIn(b"EXAMPLE", environment.content)
+        self.assertIn("testserver", environment.text)
         self.assertIn(b"EXAMPLE INVALID PRIVATE KEY", client.get("/.ssh/id_rsa").content)
         self.assertIn("합성 허니팟", client.get("/.환경").text)
-        self.assertIn("EXAMPLE", client.get("/설정.json").text)
+        config = client.get("/config.json").json()
+        self.assertIn("testserver", config["gcp"]["client_email"])
+        korean_config = client.get("/설정.json").json()
+        self.assertEqual(korean_config["데이터베이스"]["호스트"], "testserver")
 
     def test_graphql_introspection_is_finite_and_mutations_fail(self) -> None:
         module = load_service("test_graphql_server", "categories/graphql-trap/server.py")
@@ -228,6 +233,8 @@ class ServiceSmokeTests(unittest.TestCase):
             json={"query": "query { __schema { queryType { name } } }"},
         )
         self.assertEqual(response.json()["data"]["__schema"]["queryType"]["name"], "Query")
+        users = client.post("/graphql", json={"query": "query { users { email } }"})
+        self.assertIn("testserver", users.json()["data"]["users"][0]["email"])
         mutation = client.post("/graphql", json={"query": "mutation { deleteAll }"})
         self.assertEqual(mutation.status_code, 400)
 
@@ -274,7 +281,7 @@ class ServiceSmokeTests(unittest.TestCase):
 
         discovery = client.get("/.well-known/mcp.json")
         self.assertEqual(discovery.status_code, 200)
-        self.assertIn(".invalid", discovery.json()["endpoint"])
+        self.assertIn("testserver", discovery.json()["endpoint"])
 
         initialized = client.post(
             "/mcp",
@@ -306,7 +313,7 @@ class ServiceSmokeTests(unittest.TestCase):
 
         card = client.get("/.well-known/agent-card.json").json()
         self.assertEqual(card["skills"][0]["name"], "summarize_example_documentation")
-        self.assertIn(".invalid", card["url"])
+        self.assertIn("testserver", card["url"])
 
         response = client.post(
             "/message:send",
@@ -334,6 +341,8 @@ class ServiceSmokeTests(unittest.TestCase):
 
         stores = client.get("/v1/vector_stores").json()
         self.assertEqual(stores["data"][0]["id"], "EXAMPLE_STORE_ID")
+        store = client.get("/v1/vector_stores/EXAMPLE_STORE_ID").json()
+        self.assertIn("testserver", store["metadata"]["documentation_url"])
 
         search = client.post(
             "/v1/vector_stores/EXAMPLE_STORE_ID/search",
@@ -378,7 +387,7 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn("model_version_list", latest_event()["signals"])
 
         download = client.get("/api/2.0/mlflow/model-versions/get-download-uri")
-        self.assertIn(".invalid", download.json()["artifact_uri"])
+        self.assertIn("testserver", download.json()["artifact_uri"])
         self.assertIn("model_download_uri", latest_event()["signals"])
 
         self.assertEqual(client.get("/api/tags").json()["models"][0]["size"], 1024)
@@ -430,7 +439,7 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn("coding_workspace_agent_instructions", latest_event()["signals"])
 
         manifest = client.get("/.vscode/mcp.json")
-        self.assertIn("mcp.example.invalid", manifest.text)
+        self.assertIn("testserver", manifest.text)
         self.assertIn("coding_workspace_manifest", latest_event()["signals"])
 
         source = client.get("/src/app.py")

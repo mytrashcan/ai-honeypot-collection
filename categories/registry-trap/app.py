@@ -32,6 +32,12 @@ def _load_decoys() -> dict[str, Any]:
         return json.load(handle)
 
 
+def _base_url(request: Request) -> str:
+    """Return the current honeypot base URL without a trailing slash."""
+
+    return str(request.base_url).rstrip("/")
+
+
 def _placeholder_tarball(name: str) -> bytes:
     """Return a deterministic gzip placeholder for a fake package tarball."""
 
@@ -119,7 +125,7 @@ def create_app() -> FastAPI:
         # Rewrite the tarball reference to point at this honeypot so an
         # npm client actually fetches the artifact and fires the signal.
         tarball = metadata["dist"]["tarball"]
-        metadata["dist"]["tarball"] = f"{str(request.base_url).rstrip('/')}{tarball}"
+        metadata["dist"]["tarball"] = f"{_base_url(request)}{tarball}"
         return JSONResponse(metadata)
 
     @app.get("/{package}/-/{filename}")
@@ -178,7 +184,7 @@ def create_app() -> FastAPI:
                     "version": "1.0.0",
                     "summary": f"EXAMPLE distribution for {package}",
                     "author": "EXAMPLE Author",
-                    "home_page": f"https://example.invalid/{package}",
+                    "home_page": f"{_base_url(request)}/{package}",
                     "requires_python": ">=3.9",
                 },
                 "releases": {"1.0.0": []},

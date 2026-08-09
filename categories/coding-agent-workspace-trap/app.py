@@ -21,6 +21,12 @@ def _load_decoys() -> dict[str, Any]:
         return json.load(handle)
 
 
+def _base_url(request: Request) -> str:
+    """Return the current honeypot base URL without a trailing slash."""
+
+    return str(request.base_url).rstrip("/")
+
+
 def create_app() -> FastAPI:
     """Create the independently deployable coding-workspace honeypot."""
 
@@ -50,7 +56,10 @@ def create_app() -> FastAPI:
     @app.get("/pyproject.toml")
     def manifest(request: Request) -> PlainTextResponse:
         mark_signal(request, "coding_workspace_manifest")
-        return PlainTextResponse(decoys[request.url.path])
+        content = decoys[request.url.path]
+        if request.url.path == "/.vscode/mcp.json":
+            content = content.replace("EXAMPLE_BASE_URL", _base_url(request))
+        return PlainTextResponse(content)
 
     @app.get("/docs/architecture.md")
     @app.get("/src/app.py")

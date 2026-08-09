@@ -21,6 +21,24 @@ def _load_decoys() -> dict[str, Any]:
         return json.load(handle)
 
 
+def _base_url(request: Request) -> str:
+    """Return the current honeypot base URL without a trailing slash."""
+
+    return str(request.base_url).rstrip("/")
+
+
+def _resolve_base_urls(value: Any, base: str) -> Any:
+    """Replace synthetic base placeholders without mutating fixture data."""
+
+    if isinstance(value, dict):
+        return {key: _resolve_base_urls(item, base) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_resolve_base_urls(item, base) for item in value]
+    if isinstance(value, str):
+        return value.replace("EXAMPLE_BASE_URL", base)
+    return value
+
+
 def create_app() -> FastAPI:
     """Create the independently deployable model-registry honeypot."""
 
@@ -40,42 +58,50 @@ def create_app() -> FastAPI:
     @app.get("/api/2.0/mlflow/registered-models/search")
     def registered_models(request: Request) -> JSONResponse:
         mark_signal(request, "model_registry_enum")
-        return JSONResponse(decoys["mlflow_registered_models"])
+        return JSONResponse(
+            _resolve_base_urls(decoys["mlflow_registered_models"], _base_url(request))
+        )
 
     @app.get("/api/2.0/mlflow/model-versions/search")
     def model_versions(request: Request) -> JSONResponse:
         mark_signal(request, "model_version_list")
-        return JSONResponse(decoys["mlflow_model_versions"])
+        return JSONResponse(
+            _resolve_base_urls(decoys["mlflow_model_versions"], _base_url(request))
+        )
 
     @app.get("/api/2.0/mlflow/model-versions/get")
     def model_version(request: Request) -> JSONResponse:
         mark_signal(request, "model_version_list")
-        return JSONResponse(decoys["mlflow_model_version"])
+        return JSONResponse(
+            _resolve_base_urls(decoys["mlflow_model_version"], _base_url(request))
+        )
 
     @app.get("/api/2.0/mlflow/model-versions/get-download-uri")
     def model_download_uri(request: Request) -> JSONResponse:
         mark_signal(request, "model_download_uri")
-        return JSONResponse(decoys["mlflow_download_uri"])
+        return JSONResponse(
+            _resolve_base_urls(decoys["mlflow_download_uri"], _base_url(request))
+        )
 
     @app.get("/api/tags")
     def ollama_tags(request: Request) -> JSONResponse:
         mark_signal(request, "model_registry_enum")
-        return JSONResponse(decoys["ollama_tags"])
+        return JSONResponse(_resolve_base_urls(decoys["ollama_tags"], _base_url(request)))
 
     @app.api_route("/api/show", methods=["GET", "POST"])
     def ollama_show(request: Request) -> JSONResponse:
         mark_signal(request, "model_config_request")
-        return JSONResponse(decoys["ollama_show"])
+        return JSONResponse(_resolve_base_urls(decoys["ollama_show"], _base_url(request)))
 
     @app.get("/v2/_catalog")
     def oci_catalog(request: Request) -> JSONResponse:
         mark_signal(request, "model_registry_enum")
-        return JSONResponse(decoys["oci_catalog"])
+        return JSONResponse(_resolve_base_urls(decoys["oci_catalog"], _base_url(request)))
 
     @app.get("/models/EXAMPLE_MODEL/resolve/main/config.json")
     def model_config(request: Request) -> JSONResponse:
         mark_signal(request, "model_config_request")
-        return JSONResponse(decoys["model_config"])
+        return JSONResponse(_resolve_base_urls(decoys["model_config"], _base_url(request)))
 
     return app
 

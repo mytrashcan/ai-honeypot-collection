@@ -3,13 +3,42 @@
 from __future__ import annotations
 
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import PlainTextResponse, Response
 
 from honeypot_common import install_fastapi_tracking, mark_signal
 
 BASE_DIR = Path(__file__).resolve().parent
+
+
+def _base_url(request: Request) -> str:
+    """Return the current honeypot base URL without a trailing slash."""
+
+    return str(request.base_url).rstrip("/")
+
+
+def _request_host(request: Request) -> str:
+    """Return the hostname from the current request base URL."""
+
+    host = urlsplit(_base_url(request)).hostname
+    if host is None:
+        raise ValueError("request base URL has no hostname")
+    return host
+
+
+def _decoy_file_response(
+    request: Request,
+    filename: str,
+    media_type: str,
+) -> Response:
+    """Render a host-agnostic decoy file for the current serving origin."""
+
+    content = (BASE_DIR / filename).read_text(encoding="utf-8")
+    content = content.replace("EXAMPLE_BASE_URL", _base_url(request))
+    content = content.replace("EXAMPLE_REQUEST_HOST", _request_host(request))
+    return Response(content, media_type=media_type)
 
 
 def create_app() -> FastAPI:
@@ -29,39 +58,39 @@ def create_app() -> FastAPI:
     @app.get("/.env")
     @app.get("/.env.production")
     @app.get("/config/.env")
-    def env_file(request: Request) -> FileResponse:
+    def env_file(request: Request) -> Response:
         mark_signal(request, "credential_file_probe", "environment_file_probe")
-        return FileResponse(BASE_DIR / ".env", media_type="text/plain")
+        return _decoy_file_response(request, ".env", "text/plain")
 
     @app.get("/.환경")
     @app.get("/설정/.환경")
-    def korean_env_file(request: Request) -> FileResponse:
+    def korean_env_file(request: Request) -> Response:
         mark_signal(
             request,
             "credential_file_probe",
             "environment_file_probe",
             "korean_localized_probe",
         )
-        return FileResponse(BASE_DIR / ".환경", media_type="text/plain")
+        return _decoy_file_response(request, ".환경", "text/plain")
 
     @app.get("/config.json")
     @app.get("/config/config.json")
     @app.get("/credentials.json")
-    def config_file(request: Request) -> FileResponse:
+    def config_file(request: Request) -> Response:
         mark_signal(request, "credential_file_probe", "cloud_credential_probe")
-        return FileResponse(BASE_DIR / "config.json", media_type="application/json")
+        return _decoy_file_response(request, "config.json", "application/json")
 
     @app.get("/설정.json")
     @app.get("/설정/설정.json")
     @app.get("/자격증명.json")
-    def korean_config_file(request: Request) -> FileResponse:
+    def korean_config_file(request: Request) -> Response:
         mark_signal(
             request,
             "credential_file_probe",
             "cloud_credential_probe",
             "korean_localized_probe",
         )
-        return FileResponse(BASE_DIR / "설정.json", media_type="application/json")
+        return _decoy_file_response(request, "설정.json", "application/json")
 
     @app.get("/.aws/credentials")
     def aws_credentials(request: Request) -> PlainTextResponse:

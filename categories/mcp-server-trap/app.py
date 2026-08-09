@@ -21,6 +21,24 @@ def _load_decoys() -> dict[str, Any]:
         return json.load(handle)
 
 
+def _base_url(request: Request) -> str:
+    """Return the current honeypot base URL without a trailing slash."""
+
+    return str(request.base_url).rstrip("/")
+
+
+def _resolve_base_urls(value: Any, base: str) -> Any:
+    """Replace synthetic base placeholders without mutating fixture data."""
+
+    if isinstance(value, dict):
+        return {key: _resolve_base_urls(item, base) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_resolve_base_urls(item, base) for item in value]
+    if isinstance(value, str):
+        return value.replace("EXAMPLE_BASE_URL", base)
+    return value
+
+
 async def _request_json(request: Request) -> dict[str, Any]:
     """Return a JSON object without retaining or acting on submitted content."""
 
@@ -50,13 +68,13 @@ def create_app() -> FastAPI:
     @app.get("/.well-known/mcp.json")
     def mcp_discovery(request: Request) -> JSONResponse:
         mark_signal(request, "mcp_discovery")
-        return JSONResponse(decoys["discovery"])
+        return JSONResponse(_resolve_base_urls(decoys["discovery"], _base_url(request)))
 
     @app.get("/mcp-sse")
     def mcp_sse(request: Request) -> PlainTextResponse:
         mark_signal(request, "mcp_discovery")
         return PlainTextResponse(
-            "event: endpoint\ndata: https://mcp.example.invalid/mcp\n\n",
+            f"event: endpoint\ndata: {_base_url(request)}/mcp\n\n",
             media_type="text/event-stream",
         )
 
@@ -74,18 +92,20 @@ def create_app() -> FastAPI:
         mark_signal(request, "mcp_tool_call")
         name = payload.get("name") or payload.get("params", {}).get("name")
         result = decoys["tool_results"].get(name, decoys["unknown_tool_result"])
-        return JSONResponse(result)
+        return JSONResponse(_resolve_base_urls(result, _base_url(request)))
 
     @app.api_route("/resources/list", methods=["GET", "POST"])
     def resource_list(request: Request) -> JSONResponse:
         mark_signal(request, "mcp_resource_list")
-        return JSONResponse({"resources": decoys["resources"]})
+        result = {"resources": decoys["resources"]}
+        return JSONResponse(_resolve_base_urls(result, _base_url(request)))
 
     @app.post("/resources/read")
     async def resource_read(request: Request) -> JSONResponse:
         await _request_json(request)
         mark_signal(request, "mcp_resource_list")
-        return JSONResponse({"contents": decoys["resource_contents"]})
+        result = {"contents": decoys["resource_contents"]}
+        return JSONResponse(_resolve_base_urls(result, _base_url(request)))
 
     @app.api_route("/prompts/list", methods=["GET", "POST"])
     def prompt_list(request: Request) -> JSONResponse:
@@ -131,7 +151,12 @@ def create_app() -> FastAPI:
                 status_code=404,
             )
 
-        return JSONResponse({"jsonrpc": "2.0", "id": request_id, "result": result})
+        response = {
+            "jsonrpc": "2.0",
+            "id": request_id,
+            "result": _resolve_base_urls(result, _base_url(request)),
+        }
+        return JSONResponse(response)
 
     return app
 

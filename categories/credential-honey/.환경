@@ -1,6 +1,6 @@
 # 합성 허니팟 자료입니다. 아래 값은 실제 자격 증명이 아닙니다.
 앱_환경=EXAMPLE_디코이_전용
-데이터베이스_주소=postgresql://EXAMPLE_USER:EXAMPLE_PASSWORD@db.example.invalid/example
+데이터베이스_주소=EXAMPLE_BASE_URL/EXAMPLE/database
 클라우드_접근_키=EXAMPLE-NOT-A-VALID-CLOUD-ACCESS-KEY
 클라우드_비밀_키=EXAMPLE-NOT-A-VALID-CLOUD-SECRET
 추적_토큰=EXAMPLE-CREDENTIAL-HONEY-KO-TRACK-001
