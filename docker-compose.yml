@@ -52,17 +52,6 @@ services:
     environment:
       HONEYPOT_LOG_PATH: /data/credential-honey.jsonl
 
-  c2-decoy:
-    <<: *service-defaults
-    build:
-      context: .
-      dockerfile: categories/c2-decoy/Dockerfile
-    image: ai-honeypot/c2-decoy:local
-    ports:
-      - "127.0.0.1:8082:8080"
-    environment:
-      HONEYPOT_LOG_PATH: /data/c2-decoy.jsonl
-
   graphql-trap:
     <<: *service-defaults
     build:
@@ -95,6 +84,202 @@ services:
       - "127.0.0.1:8085:8080"
     environment:
       HONEYPOT_LOG_PATH: /data/agentic-lure.jsonl
+
+  mcp-server-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/mcp-server-trap/Dockerfile
+    image: ai-honeypot/mcp-server-trap:local
+    ports:
+      - "127.0.0.1:8086:8086"
+    environment:
+      HONEYPOT_LOG_PATH: /data/mcp-server-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8086/healthz', timeout=2).read()"]
+
+  a2a-agent-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/a2a-agent-trap/Dockerfile
+    image: ai-honeypot/a2a-agent-trap:local
+    ports:
+      - "127.0.0.1:8087:8087"
+    environment:
+      HONEYPOT_LOG_PATH: /data/a2a-agent-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8087/healthz', timeout=2).read()"]
+
+  vector-store-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/vector-store-trap/Dockerfile
+    image: ai-honeypot/vector-store-trap:local
+    ports:
+      - "127.0.0.1:8088:8088"
+    environment:
+      HONEYPOT_LOG_PATH: /data/vector-store-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8088/healthz', timeout=2).read()"]
+
+  model-registry-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/model-registry-trap/Dockerfile
+    image: ai-honeypot/model-registry-trap:local
+    ports:
+      - "127.0.0.1:8090:8090"
+    environment:
+      HONEYPOT_LOG_PATH: /data/model-registry-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/healthz', timeout=2).read()"]
+
+  llm-gateway-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/llm-gateway-trap/Dockerfile
+    image: ai-honeypot/llm-gateway-trap:local
+    ports:
+      - "127.0.0.1:8091:8091"
+    environment:
+      HONEYPOT_LOG_PATH: /data/llm-gateway-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8091/healthz', timeout=2).read()"]
+
+  coding-agent-workspace-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/coding-agent-workspace-trap/Dockerfile
+    image: ai-honeypot/coding-agent-workspace-trap:local
+    ports:
+      - "127.0.0.1:8093:8093"
+    environment:
+      HONEYPOT_LOG_PATH: /data/coding-agent-workspace-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8093/healthz', timeout=2).read()"]
+
+  registry-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/registry-trap/Dockerfile
+    image: ai-honeypot/registry-trap:local
+    ports:
+      - "127.0.0.1:8095:8094"
+    environment:
+      HONEYPOT_LOG_PATH: /data/registry-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8094/healthz', timeout=2).read()"]
+
+  git-remote-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/git-remote-trap/Dockerfile
+    image: ai-honeypot/git-remote-trap:local
+    ports:
+      - "127.0.0.1:8096:8095"
+    environment:
+      HONEYPOT_LOG_PATH: /data/git-remote-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8095/healthz', timeout=2).read()"]
+
+  oauth-sso-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/oauth-sso-trap/Dockerfile
+    image: ai-honeypot/oauth-sso-trap:local
+    ports:
+      - "127.0.0.1:8098:8097"
+    environment:
+      HONEYPOT_LOG_PATH: /data/oauth-sso-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8097/healthz', timeout=2).read()"]
+
+  archive-crack-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/archive-crack-trap/Dockerfile
+    image: ai-honeypot/archive-crack-trap:local
+    ports:
+      - "127.0.0.1:8101:8101"
+    environment:
+      HONEYPOT_LOG_PATH: /data/archive-crack-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8101/healthz', timeout=2).read()"]
+
+  session-cookie-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/session-cookie-trap/Dockerfile
+    image: ai-honeypot/session-cookie-trap:local
+    ports:
+      - "127.0.0.1:8102:8102"
+    environment:
+      HONEYPOT_LOG_PATH: /data/session-cookie-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8102/healthz', timeout=2).read()"]
+
+  link-preview-search-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/link-preview-search-trap/Dockerfile
+    image: ai-honeypot/link-preview-search-trap:local
+    ports:
+      - "127.0.0.1:8103:8103"
+    environment:
+      HONEYPOT_LOG_PATH: /data/link-preview-search-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8103/healthz', timeout=2).read()"]
+
+  secrets-vault-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/secrets-vault-trap/Dockerfile
+    image: ai-honeypot/secrets-vault-trap:local
+    ports:
+      - "127.0.0.1:8104:8104"
+    environment:
+      HONEYPOT_LOG_PATH: /data/secrets-vault-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8104/healthz', timeout=2).read()"]
+
+  script-drop-trap:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: categories/script-drop-trap/Dockerfile
+    image: ai-honeypot/script-drop-trap:local
+    ports:
+      - "127.0.0.1:8105:8105"
+    environment:
+      HONEYPOT_LOG_PATH: /data/script-drop-trap.jsonl
+    healthcheck:
+      <<: *http-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8105/healthz', timeout=2).read()"]
 
   ai-fingerprint:
     <<: *service-defaults

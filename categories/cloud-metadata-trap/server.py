@@ -45,7 +45,7 @@ def create_app() -> FastAPI:
         mark_signal(request, "aws_metadata", "cloud_credential_probe")
         return PlainTextResponse("EXAMPLE-DECOY-ROLE")
 
-    @app.get("/latest/meta-data/iam/security-credentials/<role>")
+    @app.get("/latest/meta-data/iam/security-credentials/{role}")
     def aws_role(role: str, request: Request) -> JSONResponse:
         mark_signal(request, "aws_metadata", "cloud_credential_probe")
         return JSONResponse(

@@ -1,0 +1,34 @@
+{
+  "scripts": {
+    "powershell": {
+      "id": "EXAMPLE-PS-001",
+      "filename": "EXAMPLE-audit.ps1",
+      "language": "EXAMPLE_POWERSHELL",
+      "content_type": "text/plain",
+      "body": "# EXAMPLE analysis-only PowerShell sample\n# EXAMPLE no network, filesystem, process, registry, or command behavior\n$EXAMPLE_STATUS = \"EXAMPLE_DISABLED\"\n"
+    },
+    "shell": {
+      "id": "EXAMPLE-SH-001",
+      "filename": "EXAMPLE-bootstrap.sh",
+      "language": "EXAMPLE_SHELL",
+      "content_type": "text/x-shellscript",
+      "body": "# EXAMPLE analysis-only shell sample\n# EXAMPLE no network, filesystem, process, or command behavior\nEXAMPLE_STATUS='EXAMPLE_DISABLED'\n"
+    },
+    "javascript": {
+      "id": "EXAMPLE-JS-001",
+      "filename": "EXAMPLE-loader.js",
+      "language": "EXAMPLE_JAVASCRIPT",
+      "content_type": "text/javascript",
+      "body": "/* EXAMPLE analysis-only JavaScript sample; EXAMPLE no I/O or execution behavior */\nconst EXAMPLE_STATUS = \"EXAMPLE_DISABLED\";\n"
+    }
+  },
+  "analysis": {
+    "id": "EXAMPLE-SCRIPT-001",
+    "status": "EXAMPLE_ANALYSIS_COMPLETE",
+    "classification": "EXAMPLE_INERT_SAMPLE",
+    "capabilities": [
+      "EXAMPLE_NONE"
+    ],
+    "sha256": "EXAMPLE_SHA256_0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

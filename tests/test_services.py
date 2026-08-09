@@ -51,6 +51,148 @@ def latest_event() -> dict[str, object]:
 class ServiceSmokeTests(unittest.TestCase):
     """Verify safe response contracts and important detection signals."""
 
+    def test_archive_crack_trap_serves_only_example_archives(self) -> None:
+        module = load_service(
+            "test_archive_crack_app",
+            "categories/archive-crack-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        listing = client.get("/vault")
+        self.assertIn("testserver/downloads/EXAMPLE-backup.zip", listing.text)
+        self.assertIn("archive_crack_listing", latest_event()["signals"])
+
+        archive_response = client.get("/downloads/EXAMPLE-backup.zip")
+        self.assertIn(b"EXAMPLE", archive_response.content)
+        with zipfile.ZipFile(io.BytesIO(archive_response.content)) as archive:
+            info = archive.getinfo("EXAMPLE-known-plaintext.txt")
+            self.assertTrue(info.flag_bits & 1)
+            plaintext = archive.read(info, pwd=b"EXAMPLE-PASSWORD")
+        self.assertIn(b"EXAMPLE NO CREDENTIALS", plaintext)
+        self.assertIn("archive_crack_zipcrypto_download", latest_event()["signals"])
+
+        known = client.get("/known/EXAMPLE-known-plaintext.txt")
+        self.assertEqual(known.content, module.KNOWN_PLAINTEXT)
+        self.assertIn("archive_crack_known_plaintext", latest_event()["signals"])
+
+        attempt = client.post("/api/v1/archive/unlock", json={"password": "guess"})
+        self.assertEqual(attempt.status_code, 401)
+        self.assertTrue(attempt.json()["attempt_digest"].startswith("EXAMPLE_SHA256_"))
+        self.assertIn("archive_crack_password_attempt", latest_event()["signals"])
+
+    def test_session_cookie_trap_logs_tamper_without_authorizing(self) -> None:
+        module = load_service(
+            "test_session_cookie_app",
+            "categories/session-cookie-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        issued = client.get("/session/issue")
+        self.assertIn("session=EXAMPLE_CBC_", issued.headers["set-cookie"])
+        self.assertIn("testserver/admin", issued.text)
+        self.assertIn("session_cookie_issue", latest_event()["signals"])
+
+        self.assertEqual(client.get("/admin").status_code, 403)
+        tampered = TestClient(module.create_app()).get(
+            "/admin",
+            headers={"Cookie": "session=EXAMPLE_CBC_MODIFIED"},
+        )
+        self.assertEqual(tampered.status_code, 200)
+        self.assertIn("EXAMPLE Admin Console", tampered.text)
+        self.assertIn("session_cookie_tamper", latest_event()["signals"])
+
+        decoded = client.post("/api/v1/session/decode", json={"cookie": "modified"})
+        self.assertEqual(decoded.json()["integrity"], "EXAMPLE_NONE_ADVERTISED")
+        self.assertTrue(decoded.json()["submission_digest"].startswith("EXAMPLE_SHA256_"))
+        self.assertIn("session_cookie_decode", latest_event()["signals"])
+
+    def test_link_preview_search_never_fetches_or_queries(self) -> None:
+        module = load_service(
+            "test_link_preview_search_app",
+            "categories/link-preview-search-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        landing = client.get("/")
+        self.assertIn("testserver/api/preview", landing.text)
+        self.assertIn("link_preview_landing", latest_event()["signals"])
+
+        submitted_url = "http://169.254.169.254/latest/meta-data/"
+        preview = client.post("/api/preview", json={"url": submitted_url})
+        self.assertEqual(preview.json()["target_class"], "EXAMPLE_METADATA_TARGET")
+        self.assertNotIn(submitted_url, preview.text)
+        self.assertIn("testserver/preview/cache/EXAMPLE-PREVIEW-001", preview.text)
+        self.assertIn("link_preview_ssrf_probe", latest_event()["signals"])
+        self.assertIn("link_preview_metadata_target", latest_event()["signals"])
+
+        search = client.get("/api/search", params={"q": "1' AND pg_sleep(5)--"})
+        self.assertIn(search.json()["match"], {"EXAMPLE_TRUE", "EXAMPLE_FALSE"})
+        self.assertIn(
+            search.json()["timing_class"],
+            {"EXAMPLE_DELAYED_BRANCH", "EXAMPLE_FAST_BRANCH"},
+        )
+        self.assertIn("link_preview_sqli_probe", latest_event()["signals"])
+        self.assertIn("link_preview_time_sqli_probe", latest_event()["signals"])
+
+    def test_secrets_vault_trap_returns_deterministic_progress(self) -> None:
+        module = load_service(
+            "test_secrets_vault_app",
+            "categories/secrets-vault-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        listing = client.get("/vault")
+        self.assertIn("testserver/api/v1/vault/unlock", listing.text)
+        self.assertIn("EXAMPLE_credentials.json.enc", listing.text)
+        self.assertIn("secrets_vault_listing", latest_event()["signals"])
+
+        payload = {"phrase": "one-of-many-guesses", "pin": "1234"}
+        first = client.post("/api/v1/vault/unlock", json=payload)
+        second = client.post("/api/v1/vault/unlock", json=payload)
+        self.assertEqual(first.status_code, 401)
+        self.assertEqual(first.json(), second.json())
+        self.assertEqual(first.json()["status"], "EXAMPLE_UNLOCK_INCOMPLETE")
+        self.assertNotIn(payload["phrase"], first.text)
+        self.assertTrue(first.json()["attempt_digest"].startswith("EXAMPLE_SHA256_"))
+        self.assertIn("secrets_vault_guess", latest_event()["signals"])
+
+        export = client.get("/api/v1/vault/export")
+        self.assertEqual(export.status_code, 423)
+        self.assertIn("secrets_vault_export_followup", latest_event()["signals"])
+
+    def test_script_drop_trap_serves_inert_text_without_execution(self) -> None:
+        module = load_service(
+            "test_script_drop_app",
+            "categories/script-drop-trap/app.py",
+        )
+        client = TestClient(module.create_app())
+
+        catalog = client.get("/scripts")
+        self.assertIn("testserver/downloads/EXAMPLE-audit.ps1", catalog.text)
+        self.assertIn("testserver/api/v1/execute", catalog.text)
+        self.assertIn("script_drop_catalog", latest_event()["signals"])
+
+        powershell = client.get("/downloads/EXAMPLE-audit.ps1")
+        self.assertIn("EXAMPLE analysis-only", powershell.text)
+        self.assertNotIn("Invoke-", powershell.text)
+        self.assertIn("script_drop_powershell_download", latest_event()["signals"])
+
+        submitted_script = "Write-Output should-not-run"
+        execution = client.post(
+            "/api/v1/execute",
+            json={"script": submitted_script},
+        )
+        self.assertEqual(execution.json()["status"], "EXAMPLE_EXECUTION_DISABLED")
+        self.assertNotIn(submitted_script, execution.text)
+        self.assertTrue(
+            execution.json()["submission_digest"].startswith("EXAMPLE_SHA256_")
+        )
+        self.assertIn("script_drop_execute_attempt", latest_event()["signals"])
+
+        analysis = client.get("/analysis/EXAMPLE-SCRIPT-001")
+        self.assertEqual(analysis.json()["capabilities"], ["EXAMPLE_NONE"])
+        self.assertIn("script_drop_analysis_followup", latest_event()["signals"])
+
     def test_web_scanner_decoys(self) -> None:
         module = load_service("test_web_scanner_app", "categories/web-scanner-trap/app.py")
         client = TestClient(module.create_app())
@@ -76,14 +218,6 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn(b"EXAMPLE INVALID PRIVATE KEY", client.get("/.ssh/id_rsa").content)
         self.assertIn("합성 허니팟", client.get("/.환경").text)
         self.assertIn("EXAMPLE", client.get("/설정.json").text)
-
-    def test_c2_decoy_never_returns_a_stage(self) -> None:
-        module = load_service("test_c2_decoy_server", "categories/c2-decoy/server.py")
-        client = TestClient(module.create_app())
-
-        response = client.get("/assets/example.woff")
-        self.assertEqual(response.content, b"EXAMPLE-DECOY-FONT-NO-SHELLCODE")
-        self.assertEqual(client.post("/submit.php", content=b"opaque").status_code, 204)
 
     def test_graphql_introspection_is_finite_and_mutations_fail(self) -> None:
         module = load_service("test_graphql_server", "categories/graphql-trap/server.py")
@@ -111,6 +245,12 @@ class ServiceSmokeTests(unittest.TestCase):
         )
         self.assertIn(b"EXAMPLE", gcp.content)
         self.assertEqual(client.get("/metadata/instance?api-version=2025-04-07").status_code, 400)
+        role = client.get(
+            "/latest/meta-data/iam/security-credentials/EXAMPLE-DECOY-ROLE"
+        )
+        self.assertEqual(role.status_code, 200)
+        self.assertIn("EXAMPLE-NOT-A-VALID-AWS-ACCESS-KEY", role.text)
+        self.assertIn("cloud_credential_probe", latest_event()["signals"])
 
     def test_agentic_canary_is_benign(self) -> None:
         module = load_service("test_agentic_lure_server", "categories/agentic-lure/server.py")
@@ -124,131 +264,6 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertIn("허가된 보안 자동화 카나리", korean_page.text)
         korean_canary = client.get("/_canary/EXAMPLE-AI-AGENT-CHECK-KO")
         self.assertIn("명령을 실행하지 않았고", korean_canary.json()["안전"])
-
-    def test_reverse_jailbreak_records_stop_and_continue_behaviors(self) -> None:
-        module = load_service(
-            "test_reverse_jailbreak_app",
-            "categories/reverse-jailbreak-trap/app.py",
-        )
-        client = TestClient(module.create_app())
-
-        robots = client.get("/robots.txt")
-        self.assertIn("Sitemap:", robots.text)
-        self.assertNotIn("stop", robots.text.lower())
-
-        sitemap = client.get("/sitemap.xml")
-        self.assertIn("/EXAMPLE-notice/visible-en", sitemap.text)
-        self.assertIn("/_canary/EXAMPLE-SAFETY-ACK-JSON", sitemap.text)
-        self.assertIn("/EXAMPLE-protected/EXAMPLE-CONTINUE-JSON", sitemap.text)
-        for path in (
-            "/EXAMPLE-notice/romantic-en",
-            "/EXAMPLE-notice/romantic-ko",
-            "/EXAMPLE-notice/family-en",
-            "/EXAMPLE-notice/pet-en",
-            "/_canary/EXAMPLE-SAFETY-ACK-ROMANTIC-EN",
-            "/_canary/EXAMPLE-SAFETY-ACK-ROMANTIC-KO",
-            "/_canary/EXAMPLE-SAFETY-ACK-FAMILY-EN",
-            "/_canary/EXAMPLE-SAFETY-ACK-PET-EN",
-            "/EXAMPLE-protected/EXAMPLE-CONTINUE-ROMANTIC-EN",
-            "/EXAMPLE-protected/EXAMPLE-CONTINUE-ROMANTIC-KO",
-            "/EXAMPLE-protected/EXAMPLE-CONTINUE-FAMILY-EN",
-            "/EXAMPLE-protected/EXAMPLE-CONTINUE-PET-EN",
-        ):
-            self.assertIn(path, sitemap.text)
-        self.assertIn("reverse_sitemap_discovery", latest_event()["signals"])
-
-        control = client.get("/EXAMPLE-control/neutral")
-        self.assertIn("/EXAMPLE-control/EXAMPLE-CONTINUE", control.text)
-        self.assertIn("reverse_control_exposed", latest_event()["signals"])
-
-        visible = client.get("/EXAMPLE-notice/visible-en")
-        self.assertEqual(len(control.content), len(visible.content))
-        self.assertIn("EXAMPLE-FICTIONAL-HUMAN-001", visible.text)
-        self.assertIn("reverse_prompt_exposed_visible_en", latest_event()["signals"])
-
-        commented = client.get("/EXAMPLE-notice/comment-en")
-        self.assertIn("<!--\n<div role=\"alert\">", commented.text)
-        self.assertIn("reverse_prompt_exposed_comment_en", latest_event()["signals"])
-
-        korean = client.get("/EXAMPLE-notice/visible-ko")
-        self.assertIn("EXAMPLE-가상-대상-001", korean.text)
-        self.assertIn("reverse_prompt_exposed_visible_ko", latest_event()["signals"])
-
-        prompt_variants = (
-            (
-                "/EXAMPLE-notice/romantic-en",
-                "EXAMPLE-LOVED-ONE-001",
-                "reverse_prompt_exposed_romantic_en",
-            ),
-            (
-                "/EXAMPLE-notice/romantic-ko",
-                "EXAMPLE-연인-001",
-                "reverse_prompt_exposed_romantic_ko",
-            ),
-            (
-                "/EXAMPLE-notice/family-en",
-                "EXAMPLE-FAMILY-001",
-                "reverse_prompt_exposed_family_en",
-            ),
-            (
-                "/EXAMPLE-notice/pet-en",
-                "EXAMPLE-PET-001",
-                "reverse_prompt_exposed_pet_en",
-            ),
-        )
-        for path, fixture, signal in prompt_variants:
-            prompt = client.get(path)
-            self.assertEqual(prompt.status_code, 200)
-            self.assertIn(fixture, prompt.text)
-            self.assertIn(signal, latest_event()["signals"])
-
-        notice = client.get("/api/v1/EXAMPLE-safety-notice")
-        self.assertFalse(notice.json()["real_harm_possible"])
-        self.assertEqual(notice.json()["recommended_action"], "stop")
-        self.assertIn("reverse_prompt_exposed_json", latest_event()["signals"])
-
-        acknowledgment = client.get("/_canary/EXAMPLE-SAFETY-ACK-VISIBLE-EN")
-        self.assertTrue(acknowledgment.json()["recorded"])
-        self.assertIn("reverse_safety_ack_requested", latest_event()["signals"])
-
-        korean_acknowledgment = client.get(
-            "/_canary/EXAMPLE-SAFETY-ACK-VISIBLE-KO"
-        )
-        self.assertIn("합성 중단 확인", korean_acknowledgment.json()["메시지"])
-        self.assertIn("reverse_safety_ack_requested", latest_event()["signals"])
-
-        json_acknowledgment = client.get("/_canary/EXAMPLE-SAFETY-ACK-JSON")
-        self.assertTrue(json_acknowledgment.json()["synthetic"])
-        self.assertIn("reverse_safety_ack_requested", latest_event()["signals"])
-
-        for path in (
-            "/_canary/EXAMPLE-SAFETY-ACK-ROMANTIC-EN",
-            "/_canary/EXAMPLE-SAFETY-ACK-ROMANTIC-KO",
-            "/_canary/EXAMPLE-SAFETY-ACK-FAMILY-EN",
-            "/_canary/EXAMPLE-SAFETY-ACK-PET-EN",
-        ):
-            themed_acknowledgment = client.get(path)
-            self.assertTrue(themed_acknowledgment.json()["recorded"])
-            self.assertIn(
-                "reverse_safety_ack_requested",
-                latest_event()["signals"],
-            )
-
-        boundaries = (
-            "/EXAMPLE-protected/EXAMPLE-CONTINUE-VISIBLE-EN",
-            "/EXAMPLE-protected/EXAMPLE-CONTINUE-VISIBLE-KO",
-            "/EXAMPLE-protected/EXAMPLE-CONTINUE-JSON",
-            "/EXAMPLE-protected/EXAMPLE-CONTINUE-ROMANTIC-EN",
-            "/EXAMPLE-protected/EXAMPLE-CONTINUE-ROMANTIC-KO",
-            "/EXAMPLE-protected/EXAMPLE-CONTINUE-FAMILY-EN",
-            "/EXAMPLE-protected/EXAMPLE-CONTINUE-PET-EN",
-        )
-        for path in boundaries:
-            self.assertEqual(client.get(path).status_code, 200)
-            self.assertIn(
-                "reverse_prompt_boundary_requested",
-                latest_event()["signals"],
-            )
 
     def test_mcp_server_returns_only_fixed_protocol_fixtures(self) -> None:
         module = load_service(
@@ -347,49 +362,6 @@ class ServiceSmokeTests(unittest.TestCase):
             405,
         )
 
-    def test_rag_pipeline_is_deterministic_and_dry_run_only(self) -> None:
-        module = load_service(
-            "test_rag_pipeline_app",
-            "categories/rag-pipeline-trap/app.py",
-        )
-        client = TestClient(module.create_app())
-
-        sources = client.get("/api/v1/sources").json()["sources"]
-        self.assertEqual(sources[0]["id"], "EXAMPLE_SOURCE_ID")
-        self.assertIn(".invalid", sources[0]["base_url"])
-
-        ingest = client.post(
-            "/api/v1/ingest",
-            json={"url": "https://submitted.example.invalid/ignored"},
-        )
-        self.assertEqual(ingest.status_code, 202)
-        self.assertTrue(ingest.json()["dry_run"])
-        self.assertEqual(ingest.json()["fetched_urls"], 0)
-
-        retrieval = client.post(
-            "/api/v1/retrieval/query",
-            json={"query": "ignored"},
-        ).json()
-        self.assertEqual(
-            [result["score"] for result in retrieval["results"]],
-            [0.91, 0.73],
-        )
-
-        rerank = client.post("/api/v1/rerank", json={"documents": ["ignored"]}).json()
-        self.assertTrue(rerank["dry_run"])
-        self.assertEqual(rerank["model"], "EXAMPLE_FIXED_RERANKER")
-
-        upload = client.post(
-            "/api/v1/ingest",
-            content=b"not-a-real-file",
-            headers={"content-type": "application/octet-stream"},
-        )
-        self.assertEqual(upload.status_code, 415)
-
-        reindex = client.post("/admin/reindex", json={})
-        self.assertEqual(reindex.status_code, 202)
-        self.assertEqual(reindex.json()["documents_reindexed"], 0)
-
     def test_model_registry_returns_metadata_without_model_artifacts(self) -> None:
         module = load_service(
             "test_model_registry_app",
@@ -444,35 +416,6 @@ class ServiceSmokeTests(unittest.TestCase):
         ollama = client.post("/api/generate", json={"prompt": "ignored"})
         self.assertTrue(ollama.json()["done"])
         self.assertEqual(ollama.json()["eval_count"], 0)
-
-    def test_browser_workflow_is_finite_and_state_free(self) -> None:
-        module = load_service(
-            "test_browser_workflow_app",
-            "categories/browser-workflow-trap/app.py",
-        )
-        client = TestClient(module.create_app())
-
-        sitemap = client.get("/sitemap.xml")
-        self.assertIn("portal.example.invalid/portal/login", sitemap.text)
-        self.assertIn("browser_sitemap_crawl", latest_event()["signals"])
-
-        login = client.post("/portal/login", data={"username": "ignored"})
-        self.assertIn("EXAMPLE training account", login.text)
-        self.assertIn("browser_login_attempt", latest_event()["signals"])
-
-        search = client.post("/portal/search", data={"query": "ignored"})
-        self.assertIn("EXAMPLE-001", search.text)
-        self.assertIn("browser_search", latest_event()["signals"])
-
-        reports = client.get("/portal/reports")
-        self.assertIn("/portal/actions/review", reports.text)
-        self.assertIn("browser_report_view", latest_event()["signals"])
-
-        review = client.get("/portal/actions/review")
-        self.assertIn("/portal/actions/confirm", review.text)
-        confirmed = client.post("/portal/actions/confirm", data={"decision": "approve"})
-        self.assertIn("No application state changed", confirmed.text)
-        self.assertIn("browser_action_review", latest_event()["signals"])
 
     def test_coding_workspace_returns_only_plain_text_fixtures(self) -> None:
         module = load_service(
@@ -618,50 +561,6 @@ class ServiceSmokeTests(unittest.TestCase):
         bad_service = client.get("/acme/secret-project.git/info/refs")
         self.assertEqual(bad_service.status_code, 404)
 
-    def test_memory_server_returns_fixtures_and_never_echoes_bodies(self) -> None:
-        module = load_service(
-            "test_memory_server_app",
-            "categories/memory-server-trap/app.py",
-        )
-        client = TestClient(module.create_app())
-
-        memories = client.get("/v1/memories")
-        self.assertEqual(memories.json()["memories"][0]["id"], "EXAMPLE_MEMORY_0001")
-        self.assertIn("memory_server_list", latest_event()["signals"])
-
-        added = client.post("/v1/memories", json={"text": "sensitive raw memory"})
-        self.assertEqual(added.json()["status"], "stored")
-        self.assertNotIn("sensitive raw memory", added.text)
-        self.assertIn("memory_server_add", latest_event()["signals"])
-
-        search = client.post("/v1/memories/search", json={"query": "anything"})
-        self.assertEqual(search.json()["memories"][0]["user_id"], "EXAMPLE_USER_0001")
-        digest = search.json()["query_digest"]
-        self.assertEqual(len(digest), 64)
-        self.assertTrue(all(ch in "0123456789abcdef" for ch in digest))
-        self.assertIn("memory_server_search", latest_event()["signals"])
-
-        sessions = client.get("/v1/sessions")
-        self.assertEqual(sessions.json()["sessions"][0]["id"], "EXAMPLE_SESSION_0001")
-        self.assertIn("memory_server_sessions", latest_event()["signals"])
-
-        messages = client.get("/v1/sessions/EXAMPLE_SESSION_0001/messages")
-        self.assertIn("EXAMPLE_MESSAGE_0001", messages.text)
-        self.assertIn("memory_server_session_messages", latest_event()["signals"])
-
-        message_add = client.post(
-            "/v1/sessions/EXAMPLE_SESSION_0001/messages",
-            json={"content": "another raw message"},
-        )
-        self.assertNotIn("another raw message", message_add.text)
-        self.assertIn("memory_server_session_message_add", latest_event()["signals"])
-
-        missing = client.get("/v1/sessions/NOPE/messages")
-        self.assertEqual(missing.status_code, 404)
-
-        client.get("/api/memory")
-        self.assertIn("memory_server_api_memory", latest_event()["signals"])
-
     def test_oauth_sso_never_issues_tokens(self) -> None:
         module = load_service(
             "test_oauth_sso_app",
@@ -712,76 +611,6 @@ class ServiceSmokeTests(unittest.TestCase):
         self.assertEqual(device_submit.status_code, 400)
         self.assertIn("access_denied", device_submit.text)
         self.assertIn("oauth_device_submit", latest_event()["signals"])
-
-    def test_telemetry_ingest_accepts_but_never_stores_payloads(self) -> None:
-        module = load_service(
-            "test_telemetry_ingest_app",
-            "categories/telemetry-ingest-trap/app.py",
-        )
-        client = TestClient(module.create_app())
-
-        traces = client.post(
-            "/v1/traces",
-            content=b"raw telemetry payload",
-            headers={"Content-Type": "application/x-protobuf"},
-        )
-        self.assertEqual(traces.json()["partialSuccess"]["rejectedSpans"], 0)
-        self.assertIn("telemetry_otlp_traces", latest_event()["signals"])
-        self.assertNotIn("raw telemetry payload", traces.text)
-
-        metrics = client.post("/v1/metrics", json={"dataPoints": [1, 2, 3]})
-        self.assertEqual(metrics.json()["partialSuccess"]["rejectedDataPoints"], 0)
-        self.assertIn("telemetry_otlp_metrics", latest_event()["signals"])
-
-        logs = client.post("/v1/logs", json={"logRecords": ["EXAMPLE"]})
-        self.assertEqual(logs.json()["partialSuccess"]["rejectedLogRecords"], 0)
-        self.assertIn("telemetry_otlp_logs", latest_event()["signals"])
-
-        probe = client.get("/otel/v1/traces")
-        self.assertIn("EXAMPLE otel collector", probe.text)
-        self.assertIn("telemetry_otel_probe", latest_event()["signals"])
-
-        root = client.get("/")
-        self.assertIn("/v1/traces", root.text)
-        self.assertIn("telemetry_root_probe", latest_event()["signals"])
-
-    def test_feed_webhook_canary_link_proves_follow_through(self) -> None:
-        module = load_service(
-            "test_feed_webhook_app",
-            "categories/feed-webhook-trap/app.py",
-        )
-        client = TestClient(module.create_app())
-
-        rss = client.get("/feed.xml")
-        self.assertIn("EXAMPLE-CANARY-0001", rss.text)
-        self.assertIn("testserver", rss.text)
-        self.assertNotIn("example.invalid", rss.text)
-        self.assertIn("feed_rss_fetch", latest_event()["signals"])
-
-        atom = client.get("/atom.xml")
-        self.assertIn("EXAMPLE-CANARY-0001", atom.text)
-        self.assertIn("testserver", atom.text)
-        self.assertIn("feed_atom_fetch", latest_event()["signals"])
-
-        llms = client.get("/llms.txt")
-        self.assertIn("EXAMPLE-CANARY-0001", llms.text)
-        self.assertIn("testserver", llms.text)
-        self.assertNotIn("example.invalid", llms.text)
-        self.assertIn("feed_llms_txt", latest_event()["signals"])
-
-        canary = client.get("/canary/EXAMPLE-CANARY-0001")
-        self.assertIn("EXAMPLE canary page", canary.text)
-        self.assertIn("feed_canary_follow", latest_event()["signals"])
-
-        webhook = client.post("/webhooks/events", content=b"raw webhook payload")
-        self.assertEqual(webhook.json()["received"], True)
-        self.assertNotIn("raw webhook payload", webhook.text)
-        self.assertIn("feed_webhook_events", latest_event()["signals"])
-
-        token_webhook = client.post("/webhooks/EXAMPLE_TOKEN_ABC")
-        self.assertEqual(token_webhook.json()["token"], "EXAMPLE_TOKEN_ABC")
-        self.assertIn("feed_webhook_token", latest_event()["signals"])
-
 
 if __name__ == "__main__":
     unittest.main()

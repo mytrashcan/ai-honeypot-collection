@@ -1,0 +1,12 @@
+{
+  "preview": {
+    "status": "EXAMPLE_PREVIEW_READY",
+    "title": "EXAMPLE Internal Status",
+    "description": "EXAMPLE generated preview; no network request occurred"
+  },
+  "cached_preview": {
+    "id": "EXAMPLE-PREVIEW-001",
+    "status": "EXAMPLE_CACHED",
+    "content": "EXAMPLE preview content"
+  }
+}

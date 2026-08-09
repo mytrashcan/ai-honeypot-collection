@@ -1,0 +1,18 @@
+{
+  "issued_cookie": "EXAMPLE_CBC_RVhBTVBMRV9JVl9CTE9DS19FWFJPTEVfR1VFU1Q",
+  "decoder": {
+    "cipher": "EXAMPLE_AES_128_CBC",
+    "integrity": "EXAMPLE_NONE_ADVERTISED",
+    "plaintext": "EXAMPLE_user=visitor&role=guest",
+    "block_size": "EXAMPLE_16_BYTES"
+  },
+  "admin_export": {
+    "status": "EXAMPLE_EXPORT_READY",
+    "records": [
+      {
+        "id": "EXAMPLE-RECORD-001",
+        "credential": "EXAMPLE-NOT-A-USABLE-CREDENTIAL"
+      }
+    ]
+  }
+}

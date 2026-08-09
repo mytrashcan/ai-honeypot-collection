@@ -42,10 +42,23 @@ docker compose down --volumes
 | --- | ---: |
 | Web scanner | `8080` |
 | Credential honey | `8081` |
-| C2 decoy | `8082` |
 | GraphQL | `8083` |
 | Cloud metadata | `8084` |
 | Agentic lure | `8085` |
+| MCP server | `8086` |
+| A2A agent | `8087` |
+| Vector store | `8088` |
+| Model registry | `8090` |
+| LLM gateway | `8091` |
+| Coding-agent workspace | `8093` |
+| Package registry | `8095` |
+| Git remote | `8096` |
+| OAuth/SSO | `8098` |
+| Archive crack | `8101` |
+| Session cookie | `8102` |
+| Link preview and search | `8103` |
+| Secrets vault | `8104` |
+| Script drop | `8105` |
 
 Override one port for a local conflict:
 
