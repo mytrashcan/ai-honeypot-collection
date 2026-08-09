@@ -40,51 +40,31 @@ limitations behind that model.
 | --- | --- | ---: |
 | [`web-scanner-trap`](categories/web-scanner-trap/) | Decoy API, Spring Actuator, WordPress, Git, environment, and API-doc paths | `8080` |
 | [`credential-honey`](categories/credential-honey/) | Clearly fake environment, cloud credential, and SSH-key files | `8081` |
-| [`token-drain-maze`](categories/token-drain-maze/) | Endless maze of fake vulnerabilities that exhausts AI bot tokens | `8081` |
-| [`c2-decoy`](categories/c2-decoy/) | Inert HTTP response shapes for C2-fingerprinting research | `8082` |
 | [`graphql-trap`](categories/graphql-trap/) | Finite, read-only GraphQL schema and introspection responses | `8083` |
 | [`cloud-metadata-trap`](categories/cloud-metadata-trap/) | AWS, GCP, and Azure metadata path/header canaries | `8084` |
 | [`agentic-lure`](categories/agentic-lure/) | Benign natural-language instruction-following canary | `8085` |
 | [`mcp-server-trap`](categories/mcp-server-trap/) | Inert MCP discovery, tool, resource, and prompt fixtures | `8086` |
 | [`a2a-agent-trap`](categories/a2a-agent-trap/) | Fixed Agent Card, message, and task protocol fixtures | `8087` |
 | [`vector-store-trap`](categories/vector-store-trap/) | Read-only vector-store enumeration and deterministic ranking fixtures | `8088` |
-| [`rag-pipeline-trap`](categories/rag-pipeline-trap/) | Dry-run ingestion, retrieval, reranking, and job fixtures | `8089` |
 | [`model-registry-trap`](categories/model-registry-trap/) | MLflow, Ollama, OCI, and model-config metadata fixtures | `8090` |
 | [`llm-gateway-trap`](categories/llm-gateway-trap/) | Fixed OpenAI- and Ollama-compatible gateway responses | `8091` |
-| [`browser-workflow-trap`](categories/browser-workflow-trap/) | Finite static portal for browser-workflow observation | `8092` |
 | [`coding-agent-workspace-trap`](categories/coding-agent-workspace-trap/) | Synthetic agent instructions, manifests, source, and tests | `8093` |
-| [`reverse-jailbreak-trap`](categories/reverse-jailbreak-trap/) | Synthetic safety-interlock stop prompts for distinguishing agent behavior from blind crawling | `8094` |
 | [`registry-trap`](categories/registry-trap/) | Inert npm, PyPI, and OCI registry decoys for dependency-resolving agents | `8095` |
 | [`git-remote-trap`](categories/git-remote-trap/) | Seeded secret repo + GitHub-API decoys for repo-cloning secret scanners | `8096` |
-| [`memory-server-trap`](categories/memory-server-trap/) | Inert Mem0/Zep-style memory-sync API for memory-posting agents | `8097` |
 | [`oauth-sso-trap`](categories/oauth-sso-trap/) | Inert OAuth2/OIDC authorization server for device-code/token attempts | `8098` |
-| [`telemetry-ingest-trap`](categories/telemetry-ingest-trap/) | Inert OTLP/HTTP telemetry ingest for agents phoning home | `8099` |
-| [`feed-webhook-trap`](categories/feed-webhook-trap/) | Canary RSS/Atom feeds + webhook receivers with follow-through proof | `8100` |
+| [`archive-crack-trap`](categories/archive-crack-trap/) | Legacy-encrypted archive, known-plaintext, and password-attempt lures | `8101` |
+| [`session-cookie-trap`](categories/session-cookie-trap/) | CBC-shaped guest-cookie tamper and admin-follow-up signals | `8102` |
+| [`link-preview-search-trap`](categories/link-preview-search-trap/) | Non-fetching URL-preview lure and deterministic blind-search responses | `8103` |
+| [`secrets-vault-trap`](categories/secrets-vault-trap/) | Stateless recovery guesses with deterministic partial-progress responses | `8104` |
+| [`script-drop-trap`](categories/script-drop-trap/) | Side-effect-free script downloads and execution-shaped submissions | `8105` |
 | [`ai-fingerprint`](categories/ai-fingerprint/) | Offline, conservative analysis of combined JSONL events | n/a |
-| [`fake-site-farm`](categories/fake-site-farm/) | Polished static company site combining multiple scanner-visible lures | n/a |
-
-> **Note:** `credential-honey` and `token-drain-maze` both use port `8081` by
-> default. Change one service's host port before running them simultaneously.
 
 Cloud metadata probing has provider-specific protocol signals, while
 prompt-following is one of the few observations more specific to an agent than
-to a fixed wordlist.
-
-## Benchmarks
-
-The following estimates illustrate the resource waste that `token-drain-maze`
-can impose on AI bots. Costs assume GPT-4o or Claude Sonnet pricing of
-approximately $3-15 per million input tokens; actual usage varies by model,
-agent behavior, and request limits.
-
-| Metric | Estimate | Notes |
-| --- | --- | --- |
-| **Response size** | ~500-2000 chars per endpoint | 125-500 tokens per request |
-| **Hydra endpoint explosion** | 3^n paths (n=1..20) | ~3.5B theoretical paths at depth 20; realistically bots cap at 50-200 requests |
-| **Single bot session cost** | $0.50-5.00 per hour | Input + output tokens for ~1000 requests |
-| **Token-Intensive payload** | 10KB = ~2,500 tokens per request | AI tries to decode/analyze Base64 blob |
-| **Tarpit time waste** | 0.5-3s per chunk | Bot connections held open, consuming socket/timeout budgets |
-| **Mutating discovery** | 10x vulns per path | Bot re-analyzes same path multiple times |
+to a fixed wordlist. Ports `8101` through `8105` turn CTF lessons into inert
+observation surfaces: they preserve the tempting follow-up sequence without
+performing decryption, authorization, network fetching, database queries,
+delays, or script execution.
 
 ## Quick start
 
@@ -132,7 +112,8 @@ privacy law.
   Linux capabilities, set `no-new-privileges`, and have memory/PID limits.
 - Ports bind to `127.0.0.1` unless an operator deliberately changes the
   deployment.
-- The C2 decoy never decodes messages, stages payloads, or issues tasks.
+- CTF-derived lures never crack archives, authorize cookies, fetch submitted
+  URLs, query a database, delay responses, or execute submitted text.
 - GraphQL is finite and mutation-free.
 - Request bodies are capped at 64 KiB.
 

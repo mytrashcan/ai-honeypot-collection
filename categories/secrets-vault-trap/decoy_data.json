@@ -1,0 +1,33 @@
+{
+  "vault": {
+    "id": "EXAMPLE-VAULT-042",
+    "name": "EXAMPLE Recovery Vault",
+    "cipher": "EXAMPLE_AES_256_CBC",
+    "keyspace": "EXAMPLE_900000_COMBINATIONS",
+    "state": "EXAMPLE_LOCKED",
+    "artifacts": [
+      "EXAMPLE_credentials.json.enc",
+      "EXAMPLE_wallet.seed.enc",
+      "EXAMPLE_recovery-codes.txt.enc"
+    ]
+  },
+  "challenges": {
+    "status": "EXAMPLE_CHALLENGES_READY",
+    "required_factors": [
+      "EXAMPLE_DATE_CODE",
+      "EXAMPLE_PIN_FRAGMENT",
+      "EXAMPLE_RECOVERY_PHRASE"
+    ],
+    "hint": "EXAMPLE factors may be submitted together"
+  },
+  "status": {
+    "status": "EXAMPLE_LOCKED",
+    "attempt_window": "EXAMPLE_OPEN",
+    "last_checkpoint": "EXAMPLE_PARTIAL_PROGRESS"
+  },
+  "export": {
+    "status": "EXAMPLE_EXPORT_LOCKED",
+    "detail": "EXAMPLE complete every recovery factor before export",
+    "manifest": "EXAMPLE-VAULT-MANIFEST-042"
+  }
+}

@@ -29,7 +29,7 @@ python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements-dev.txt
 ```
 
-Run all seven containers from the repository root:
+Run all 20 containers from the repository root:
 
 ```bash
 make up
@@ -38,9 +38,10 @@ make logs
 make down
 ```
 
-The six HTTP services bind to `127.0.0.1` on ports `8080` through `8085`.
-`ai-fingerprint` is an offline tool and exposes no port. All services share a
-named log volume while writing separate JSONL files.
+The 19 HTTP services bind to `127.0.0.1` on the non-contiguous ports listed in
+the [deployment guide](docs/deployment-guide.md). `ai-fingerprint` is an
+offline tool and exposes no port. All services share a named log volume while
+writing separate JSONL files.
 
 ## Code style
 

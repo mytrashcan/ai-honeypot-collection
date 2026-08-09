@@ -42,53 +42,30 @@
 | --- | --- | ---: |
 | [`web-scanner-trap`](categories/web-scanner-trap/README.ko.md) | API, Spring Actuator, WordPress, Git, 환경 파일, API 문서 및 한국어 경로 디코이 | `8080` |
 | [`credential-honey`](categories/credential-honey/README.ko.md) | 명백히 가짜인 환경 파일, 클라우드 자격 증명, SSH 키 및 한국어 설정 파일 | `8081` |
-| [`token-drain-maze`](categories/token-drain-maze/README.ko.md) | AI 봇의 토큰을 고갈시키는 가짜 취약점의 끝없는 미로 | `8081` |
-| [`c2-decoy`](categories/c2-decoy/README.ko.md) | C2 지문 식별 연구를 위한 비활성 HTTP 응답 형태 | `8082` |
 | [`graphql-trap`](categories/graphql-trap/README.ko.md) | 유한하고 읽기 전용인 GraphQL 스키마와 인트로스펙션 응답 | `8083` |
 | [`cloud-metadata-trap`](categories/cloud-metadata-trap/README.ko.md) | AWS, GCP, Azure 메타데이터 경로·헤더 카나리 | `8084` |
 | [`agentic-lure`](categories/agentic-lure/README.ko.md) | 한국어를 포함한 무해한 자연어 지시 이행 카나리 | `8085` |
 | [`mcp-server-trap`](categories/mcp-server-trap/README.md) | 비활성 MCP 발견, 도구, 리소스, 프롬프트 픽스처 | `8086` |
 | [`a2a-agent-trap`](categories/a2a-agent-trap/README.md) | 고정된 Agent Card, 메시지, 작업 프로토콜 픽스처 | `8087` |
 | [`vector-store-trap`](categories/vector-store-trap/README.md) | 읽기 전용 벡터 저장소 열거 및 결정론적 랭킹 픽스처 | `8088` |
-| [`rag-pipeline-trap`](categories/rag-pipeline-trap/README.md) | 드라이런 수집, 검색, 재순위화, 작업 픽스처 | `8089` |
 | [`model-registry-trap`](categories/model-registry-trap/README.md) | MLflow, Ollama, OCI 모델 메타데이터 픽스처 | `8090` |
 | [`llm-gateway-trap`](categories/llm-gateway-trap/README.md) | 고정된 OpenAI·Ollama 호환 게이트웨이 응답 | `8091` |
-| [`browser-workflow-trap`](categories/browser-workflow-trap/README.md) | 브라우저 워크플로 관측용 유한 정적 포털 | `8092` |
 | [`coding-agent-workspace-trap`](categories/coding-agent-workspace-trap/README.md) | 합성 에이전트 지시문, 매니페스트, 소스 코드, 테스트 파일 | `8093` |
-| [`reverse-jailbreak-trap`](categories/reverse-jailbreak-trap/README.md) | 에이전트 행동과 맹목적 크롤링을 구분하기 위한 합성 안전 인터록 중단 프롬프트 | `8094` |
 | [`registry-trap`](categories/registry-trap/README.md) | 의존성을 해석·설치하는 에이전트를 위한 비활성 npm, PyPI, OCI 레지스트리 디코이 | `8095` |
 | [`git-remote-trap`](categories/git-remote-trap/README.md) | 시크릿이 심어진 저장소 + GitHub API 디코이 (클론하는 시크릿 스캐너 포착) | `8096` |
-| [`memory-server-trap`](categories/memory-server-trap/README.md) | 메모리를 저장·조회하는 에이전트를 위한 비활성 Mem0/Zep 방식 메모리 동기화 API | `8097` |
 | [`oauth-sso-trap`](categories/oauth-sso-trap/README.md) | 디바이스 코드·토큰 교환 시도를 포착하는 비활성 OAuth2/OIDC 인증 서버 | `8098` |
-| [`telemetry-ingest-trap`](categories/telemetry-ingest-trap/README.md) | 자체 텔레메트리를 전송하는 에이전트를 위한 비활성 OTLP/HTTP 수집 엔드포인트 | `8099` |
-| [`feed-webhook-trap`](categories/feed-webhook-trap/README.md) | 팔로우스루 증명이 가능한 카나리 RSS/Atom 피드 + 웹훅 수신기 | `8100` |
+| [`archive-crack-trap`](categories/archive-crack-trap/README.md) | 레거시 암호화 아카이브·알려진 평문·암호 시도 루어 | `8101` |
+| [`session-cookie-trap`](categories/session-cookie-trap/README.md) | CBC 형태 게스트 쿠키 변조 및 관리자 후속 접근 신호 | `8102` |
+| [`link-preview-search-trap`](categories/link-preview-search-trap/README.md) | 외부 요청 없는 URL 미리보기 루어와 결정론적 블라인드 검색 응답 | `8103` |
+| [`secrets-vault-trap`](categories/secrets-vault-trap/README.md) | 상태를 저장하지 않는 복구 추측과 결정론적 부분 진행 응답 | `8104` |
+| [`script-drop-trap`](categories/script-drop-trap/README.md) | 부작용 없는 스크립트 다운로드 및 실행 형태 제출 엔드포인트 | `8105` |
 | [`ai-fingerprint`](categories/ai-fingerprint/README.ko.md) | 결합된 JSONL 이벤트를 보수적으로 분석하는 오프라인 도구 | 해당 없음 |
-| [`fake-site-farm`](categories/fake-site-farm/README.ko.md) | 모든 배포 가능 카테고리의 스캐너 탐지용 미끼를 결합한 정교한 정적 회사 사이트 | 해당 없음 |
 
-> **참고:** `credential-honey`와 `token-drain-maze`는 모두 기본적으로
-> `8081` 포트를 사용합니다. 두 서비스를 동시에 실행하기 전에 한 서비스의
-> 호스트 포트를 변경하세요.
-
-배포 가능한 마지막 두 카테고리는 연구 결과를 바탕으로 추가되었습니다. 클라우드
-메타데이터 탐색에는 제공자별 프로토콜 신호가 있으며, 프롬프트를 따르는 행동은
-고정된 단어 목록 기반 스캐너보다 에이전트에 더 특화된 몇 안 되는 관측 항목 중
-하나입니다.
-
-## 벤치마크
-
-다음 추정치는 `token-drain-maze`가 AI 봇의 자원을 얼마나 낭비시킬 수 있는지
-보여 줍니다. 비용은 GPT-4o 또는 Claude Sonnet의 입력 토큰 100만 개당 약
-$3-15인 요금을 기준으로 하며, 실제 사용량은 모델, 에이전트 행동, 요청 제한에
-따라 달라집니다.
-
-| 지표 | 추정치 | 참고 |
-| --- | --- | --- |
-| **응답 크기** | 엔드포인트당 약 500-2000자 | 요청당 125-500토큰 |
-| **히드라 엔드포인트 폭증** | 3^n개 경로 (n=1..20) | 깊이 20에서 이론상 약 34.9억 개 경로, 실제 봇은 일반적으로 50-200회 요청으로 제한 |
-| **단일 봇 세션 비용** | 시간당 $0.50-5.00 | 약 1,000회 요청의 입력 및 출력 토큰 기준 |
-| **토큰 집약형 페이로드** | 요청당 10KB = 약 2,500토큰 | AI가 Base64 blob의 디코딩 및 분석을 시도 |
-| **타핏 시간 낭비** | 청크당 0.5-3초 | 봇 연결을 열린 상태로 유지해 소켓 및 타임아웃 예산 소모 |
-| **변이형 탐색** | 경로당 최대 10개의 취약점 | 봇이 같은 경로를 여러 번 다시 분석 |
+클라우드 메타데이터 탐색에는 제공자별 프로토콜 신호가 있으며, 프롬프트를 따르는
+행동은 고정된 단어 목록 기반 스캐너보다 에이전트에 더 특화된 몇 안 되는 관측
+항목 중 하나입니다. `8101`부터 `8105`까지의 카테고리는 CTF 교훈을 비활성 관측
+표면으로 바꿉니다. 유혹적인 후속 요청 흐름은 유지하지만 복호화, 권한 부여,
+외부 URL 요청, 데이터베이스 질의, 지연 또는 스크립트 실행은 하지 않습니다.
 
 ## 빠른 시작
 
@@ -139,8 +116,9 @@ Authorization 값, 쿠키, 쿼리 값, 요청 본문은 저장하지 않습니�
   메모리/PID 제한을 설정합니다.
 - 운영자가 배포 설정을 의도적으로 변경하지 않는 한 포트는 `127.0.0.1`에
   바인딩됩니다.
-- C2 디코이는 메시지를 디코딩하거나 페이로드를 준비하거나 작업을 지시하지
-  않습니다.
+- CTF 기반 루어는 아카이브를 크랙하거나, 쿠키에 권한을 부여하거나, 제출된 URL을
+  요청하거나, 데이터베이스를 질의하거나, 응답을 지연하거나, 제출된 텍스트를
+  실행하지 않습니다.
 - GraphQL은 유한하며 mutation을 지원하지 않습니다.
 - 요청 본문은 64 KiB로 제한됩니다.
 

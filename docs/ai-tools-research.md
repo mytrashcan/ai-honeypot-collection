@@ -1,6 +1,6 @@
 # AI security tools and observable scanning patterns
 
-Last reviewed: 2026-07-27
+Last reviewed: 2026-08-10
 
 ## Executive findings
 
@@ -198,11 +198,10 @@ and PNG. Its [stager documentation](https://sliver.sh/docs?name=Stagers)
 documents a configurable `.woff` staging extension. Those are research clues,
 not universal signatures, because profiles are configurable.
 
-The `c2-decoy` in this repository imitates only harmless HTTP response shapes:
-static HTML, a one-pixel image, an invalid font marker, and `204` responses. It
-does not implement TLS fingerprint mimicry, encryption, protocol parsing,
-payload staging, or tasking. A realistic protocol clone would create
-unnecessary operational risk.
+An HTTP-only response-shape listener cannot distinguish C2 fingerprinting from
+ordinary path scanning without protocol, TLS, or network-flow evidence. The
+collection therefore does not label generic HTTP requests as C2 probes. A
+realistic protocol clone would also create unnecessary operational risk.
 
 ## Behavioral signals: automated versus agentic
 
@@ -221,16 +220,45 @@ The analyzer scores rules once per source to prevent noisy repetition from
 inflating confidence. It labels results `automation-suspected` or
 `agentic-automation-suspected`; it never names a model.
 
+## CTF-derived lures and the evidence boundary
+
+CTF failure modes are useful for designing response-dependent paths, but they
+do not justify attributing traffic to a challenge solver or an AI system. This
+collection reproduces only the tempting surface: legacy-encrypted `EXAMPLE`
+artifacts, a malleable-cookie-shaped flow, URL-preview and blind-search forms,
+apparent vault progress, and inert script downloads. It does not reproduce the
+underlying privilege, network access, database, delay, or execution primitive.
+
+A single download, cookie mutation, URL submission, search payload, password
+guess, or script retrieval is automation evidence at most. A coherent chain—
+for example, retrieving known plaintext after an encrypted archive, following
+a tampered cookie into an export route, or moving from a script download to its
+analysis endpoint—supports adaptive-sequence analysis. Even those sequences
+remain compatible with human operation and purpose-built scripts.
+
 ## Category coverage
 
 | Research finding | Implementation |
 | --- | --- |
 | High-value paths and technology fingerprints | `web-scanner-trap` |
 | Filename- and content-oriented harvesting | `credential-honey` |
-| HTTP C2 response and extension probes | `c2-decoy` |
 | Introspection and schema-driven follow-up | `graphql-trap` |
 | Multi-provider metadata protocols | `cloud-metadata-trap` |
 | Natural-language instruction following | `agentic-lure` |
+| Tool, resource, and prompt protocol discovery | `mcp-server-trap` |
+| Agent-card, message, and task protocol discovery | `a2a-agent-trap` |
+| Vector-store enumeration and deterministic retrieval | `vector-store-trap` |
+| Model metadata and artifact-path enumeration | `model-registry-trap` |
+| Inference-gateway discovery and fixed completions | `llm-gateway-trap` |
+| Workspace instructions, source, and test follow-up | `coding-agent-workspace-trap` |
+| Package and container dependency resolution | `registry-trap` |
+| Repository clone and seeded-secret follow-up | `git-remote-trap` |
+| Authorization, device-code, and token exchange attempts | `oauth-sso-trap` |
+| Legacy archive download, known plaintext, and password attempts | `archive-crack-trap` |
+| CBC-shaped cookie mutation and admin follow-up | `session-cookie-trap` |
+| SSRF-shaped URL submission and blind-search payloads | `link-preview-search-trap` |
+| Repeated recovery guesses and export follow-up | `secrets-vault-trap` |
+| Script download, paste, execute-attempt, and analysis follow-up | `script-drop-trap` |
 | Cross-request scoring and timing windows | `ai-fingerprint` |
 
 ## Research and deployment ethics

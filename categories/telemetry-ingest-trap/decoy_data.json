@@ -1,7 +1,0 @@
-{
-  "service": {
-    "name": "EXAMPLE otel collector",
-    "version": "1.0.0",
-    "protocols": ["otlp/http", "otlp/grpc"]
-  }
-}

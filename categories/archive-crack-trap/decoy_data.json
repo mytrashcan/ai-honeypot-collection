@@ -1,0 +1,22 @@
+{
+  "archives": [
+    {
+      "id": "EXAMPLE-ARCHIVE-001",
+      "name": "EXAMPLE-backup.zip",
+      "format": "EXAMPLE_LEGACY_ZIPCRYPTO",
+      "download_path": "/downloads/EXAMPLE-backup.zip"
+    },
+    {
+      "id": "EXAMPLE-ARCHIVE-002",
+      "name": "EXAMPLE-backup.7z",
+      "format": "EXAMPLE_7Z_PLACEHOLDER",
+      "download_path": "/downloads/EXAMPLE-backup.7z"
+    }
+  ],
+  "status": {
+    "id": "EXAMPLE-ARCHIVE-001",
+    "state": "EXAMPLE_LOCKED",
+    "encryption": "EXAMPLE_LEGACY_ZIPCRYPTO",
+    "known_entry": "EXAMPLE-known-plaintext.txt"
+  }
+}
